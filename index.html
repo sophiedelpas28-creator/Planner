@@ -481,20 +481,20 @@ function renderModal(){
   const d=S.modalData;
   const tagOptions=S.tags.map(t=>`<option value="${t.id}"${d.tagId==t.id?' selected':''}>${esc(t.name)}</option>`).join('');
   const inlineTagForm=S.modalAddingTag?`
-    <div style="background:#1a1a1e;border:1px solid #2a2a2e;border-radius:9px;padding:12px;margin-top:8px">
-      <div style="font-size:11px;color:#555;margin-bottom:8px;font-weight:500;text-transform:uppercase;letter-spacing:.07em">New tag</div>
+    <div style="background:#f5f3ef;border:1px solid #ddd8d2;border-radius:9px;padding:12px;margin-top:8px">
+      <div style="font-size:11px;color:#6b7280;margin-bottom:8px;font-weight:500;text-transform:uppercase;letter-spacing:.07em">New tag</div>
       <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">
         ${TAG_COLORS.map(c=>`<div style="width:22px;height:22px;border-radius:50%;background:${c};cursor:pointer;border:2px solid ${S.modalNewTagColor===c?'#fff':'transparent'};flex-shrink:0;transition:transform .1s" onclick="S.modalNewTagColor='${c}';render()"></div>`).join('')}
       </div>
       <div style="display:flex;gap:7px">
         <input class="minput" placeholder="Tag name…" value="${esc(S.modalNewTagName)}" oninput="S.modalNewTagName=this.value" onkeydown="if(event.key==='Enter')addInlineTag()" style="font-size:13px;padding:8px 11px"/>
-        <button onclick="addInlineTag()" style="background:#e8e3d8;color:#0f0f10;border:none;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;flex-shrink:0">Add</button>
-        <button onclick="S.modalAddingTag=false;render()" style="background:#1e1e28;border:1px solid #2a2a2e;color:#555;border-radius:8px;padding:8px 12px;font-size:13px;flex-shrink:0">✕</button>
+        <button onclick="addInlineTag()" style="background:#bc0a0a;color:#ffffff;border:none;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;flex-shrink:0">Add</button>
+        <button onclick="S.modalAddingTag=false;render()" style="background:#f0edea;border:1px solid #ddd8d2;color:#6b7280;border-radius:8px;padding:8px 12px;font-size:13px;flex-shrink:0">✕</button>
       </div>
     </div>`:''
   const tagSelect=`<div style="display:flex;gap:7px;align-items:center">
     <select class="mselect" style="flex:1" onchange="S.modalData.tagId=this.value"><option value="">No tag</option>${tagOptions}</select>
-    <button onclick="S.modalAddingTag=!S.modalAddingTag;render()" title="Create new tag" style="width:34px;height:34px;flex-shrink:0;border-radius:8px;border:1px dashed #3a3a40;background:transparent;color:#666;font-size:18px;line-height:1;display:flex;align-items:center;justify-content:center;transition:all .15s" onmouseover="this.style.borderColor='#888';this.style.color='#ccc'" onmouseout="this.style.borderColor='#3a3a40';this.style.color='#666'">+</button>
+    <button onclick="S.modalAddingTag=!S.modalAddingTag;render()" title="Create new tag" style="width:34px;height:34px;flex-shrink:0;border-radius:8px;border:1px dashed #c8c2bb;background:transparent;color:#666;font-size:18px;line-height:1;display:flex;align-items:center;justify-content:center;transition:all .15s" onmouseover="this.style.borderColor='#888';this.style.color='#ccc'" onmouseout="this.style.borderColor='#3a3a40';this.style.color='#666'">+</button>
   </div>${inlineTagForm}`;
 
   let inner='';
@@ -573,8 +573,8 @@ function renderModal(){
 // ── FILTER BAR ──
 function filterBar(current,onClickFn){
   if(!S.tags.length)return'';
-  let h=`<div class="filter-bar"><span style="font-size:11px;color:#333">Filter:</span>
-    <button class="filter-chip${!current?' on':''}" onclick="${onClickFn}(null)" style="${!current?'border-color:#888;color:#ccc':''}">All</button>`;
+  let h=`<div class="filter-bar"><span style="font-size:11px;color:#9ca3af">Filter:</span>
+    <button class="filter-chip${!current?' on':''}" onclick="${onClickFn}(null)" style="${!current?'border-color:#6b7280;color:#ccc':''}">All</button>`;
   S.tags.forEach(t=>{const on=current==t.id;h+=`<button class="filter-chip${on?' on':''}" onclick="${onClickFn}(${t.id})" style="${on?`border-color:${t.color};color:${t.color}`:''}"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${t.color};margin-right:3px;vertical-align:middle"></span>${esc(t.name)}</button>`;});
   h+=`</div>`;return h;
 }
@@ -651,7 +651,7 @@ function renderReview(){
   const flat=allTasksFlat().filter(t=>!t.done);
   const filtered=S.pendingFilter?flat.filter(t=>t.tagId==S.pendingFilter):flat;
   const sorted=[...filtered.filter(t=>t.dueDate&&t.dueDate<today),...filtered.filter(t=>t.dueDate===today),...filtered.filter(t=>t.dueDate&&t.dueDate>today).sort((a,b)=>a.dueDate.localeCompare(b.dueDate)),...filtered.filter(t=>!t.dueDate&&t.sec==='today'),...filtered.filter(t=>!t.dueDate&&t.sec!=='today')];
-  h+=`<div style="font-size:11px;color:#555;text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:10px">All Pending Tasks · ${sorted.length}</div>`;
+  h+=`<div style="font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:10px">All Pending Tasks · ${sorted.length}</div>`;
   if(!sorted.length)return h+`<div class="empty" style="padding:24px 0"><div class="etxt">No pending tasks.</div></div>`;
   sorted.forEach(t=>{
     const rel=relDate(t.dueDate);const tg=getTag(t.tagId);
@@ -715,21 +715,21 @@ function renderCalendar(){
       </div>`;
     if(se.length){
       h+=`<div class="dpsec">Events</div>`;
-      se.forEach(e=>{const tg=getTag(e.tagId);const em=EV_TYPES.find(t=>t.v===e.type)?.l||'📅 Event';h+=`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #1a1a1e">
+      se.forEach(e=>{const tg=getTag(e.tagId);const em=EV_TYPES.find(t=>t.v===e.type)?.l||'📅 Event';h+=`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #e8e3dc">
         <div style="width:8px;height:8px;border-radius:50%;background:${tg?tg.color:'#5a9a7a'};flex-shrink:0"></div>
-        <div style="flex:1"><div style="font-size:13px;color:#b0ada5">${esc(e.title)}</div><div style="font-size:11px;color:#555">${em}${e.time?' · '+e.time:''}${tg?' · '+tg.name:''}</div></div>
+        <div style="flex:1"><div style="font-size:13px;color:#4b5563">${esc(e.title)}</div><div style="font-size:11px;color:#6b7280">${em}${e.time?' · '+e.time:''}${tg?' · '+tg.name:''}</div></div>
         <button class="ibtn" onclick="openModal('editEvent',{id:${e.id},title:'${e.title.replace(/'/g,"\\'")}',dueDate:'${e.date}',time:'${e.time||''}',evType:'${e.type||'event'}',notes:'${(e.notes||'').replace(/'/g,"\\'")}',tagId:${e.tagId||'null'}})">${iEdit}</button>
       </div>`;});
     }
     if(st.length){
       h+=`<div class="dpsec">Tasks due</div>`;
-      st.forEach(t=>{const tg=getTag(t.tagId);h+=`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #1a1a1e">
+      st.forEach(t=>{const tg=getTag(t.tagId);h+=`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #e8e3dc">
         <button class="cbox${t.done?' done':''}" style="width:16px;height:16px;border-radius:4px;border:1.5px solid ${t.done?'#b5a98c':'#3a3a40'};background:${t.done?'#b5a98c':'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0" onclick="toggleTask('${t.sec}',${t.id})">${t.done?iChkS:''}</button>
         <span style="flex:1;font-size:13px;color:${t.done?'#444':'#999'};${t.done?'text-decoration:line-through':''}">${esc(t.text)}</span>
         ${tg?`<span style="width:7px;height:7px;border-radius:50%;background:${tg.color};flex-shrink:0;display:inline-block"></span>`:''}
       </div>`;});
     }
-    if(!st.length&&!se.length)h+=`<div style="text-align:center;padding:12px 0;color:#2a2a2e;font-size:13px">Nothing here yet.</div>`;
+    if(!st.length&&!se.length)h+=`<div style="text-align:center;padding:12px 0;color:#c4bdb5;font-size:13px">Nothing here yet.</div>`;
     h+=`</div>`;
   }
   return h;
@@ -750,7 +750,7 @@ function renderTasks(){
   const isCustom=S.customSecs.find(s=>s.id===S.sec);
   h+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
     <div class="sectitle">${esc(label)}</div>
-    ${isCustom?`<button onclick="if(confirm('Delete this section?'))deleteCustomSec('${S.sec}')" style="background:none;border:none;color:#3a3a40;font-size:12px" onmouseover="this.style.color='#9a5a5a'" onmouseout="this.style.color='#3a3a40'">Delete</button>`:''}
+    ${isCustom?`<button onclick="if(confirm('Delete this section?'))deleteCustomSec('${S.sec}')" style="background:none;border:none;color:#9ca3af;font-size:12px" onmouseover="this.style.color='#9a5a5a'" onmouseout="this.style.color='#3a3a40'">Delete</button>`:''}
   </div>
   <div class="secsub">${!list.length?'Nothing here yet.':`${todo.length} remaining · ${done.length} done`}</div>`;
   h+=filterBar(S.filterTag,'setTaskFilter');
@@ -772,7 +772,7 @@ function renderTaskRow(t,isDone){
       <div class="ttext${isDone?' done':''}">${esc(t.text)}</div>
       <div class="tmeta">
         ${t.dueDate?`<span class="tdatetag">📅 ${t.dueDate}</span>`:''}
-        ${subs.length?`<span style="font-size:10px;color:#555">${subDone}/${subs.length} sub</span>`:''}
+        ${subs.length?`<span style="font-size:10px;color:#6b7280">${subDone}/${subs.length} sub</span>`:''}
         ${tg?`<span class="tag-pill" style="background:${tg.color}22;color:${tg.color}">${esc(tg.name)}</span>`:''}
       </div>
     </div>
@@ -799,7 +799,7 @@ function renderEvents(){
           ${e.time?`<span>${e.time}</span>`:''}
           <span>${em}</span>
           ${tg?`<span class="tag-pill" style="background:${tg.color}22;color:${tg.color}">${esc(tg.name)}</span>`:''}
-          ${e.notes?`<span style="color:#3a3a40">has notes</span>`:''}
+          ${e.notes?`<span style="color:#9ca3af">has notes</span>`:''}
         </div>
       </div>
       <button class="ibtn" onclick="openModal('editEvent',{id:${e.id},title:'${e.title.replace(/'/g,"\\'")}',dueDate:'${e.date}',time:'${e.time||''}',evType:'${e.type||'event'}',notes:'${(e.notes||'').replace(/'/g,"\\'")}',tagId:${e.tagId||'null'}})">${iEdit}</button>
@@ -813,7 +813,7 @@ function setEvFilter(id){S.evFilter=id;render();}
 function renderHabits(){
   const today=tkey(),comp=S.habits.filter(h=>S.habitLog[today]?.[h.id]).length,tot=S.habits.length,d7=last7();
   let h=`<div class="htop"><div><div class="sectitle">Everyday</div><div class="secsub" style="margin-bottom:0">Build streaks, track habits</div></div>`;
-  if(tot>0){const pct=Math.round((comp/tot)*100);h+=`<div style="text-align:right"><div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:#e8e3d8">${comp}/${tot}</div><div style="font-size:11px;color:#444">today</div><div class="ptrack"><div class="pfill" style="width:${pct}%"></div></div></div>`;}
+  if(tot>0){const pct=Math.round((comp/tot)*100);h+=`<div style="text-align:right"><div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:800;color:#111827">${comp}/${tot}</div><div style="font-size:11px;color:#9ca3af">today</div><div class="ptrack"><div class="pfill" style="width:${pct}%"></div></div></div>`;}
   h+=`</div><button class="primary-add" onclick="openModal('addHabit')">+ Add habit</button>`;
   if(!S.habits.length)return h+`<div class="empty"><div class="eicon">🌱</div><div class="etxt">No habits yet.</div></div>`;
   S.habits.forEach(habit=>{
@@ -851,8 +851,8 @@ function renderDump(){
     h+=`<div class="note-footer">
       <span class="note-date">${new Date(note.updatedAt||note.createdAt).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</span>
       ${tg?`<span class="tag-pill" style="background:${tg.color}22;color:${tg.color}">${esc(tg.name)}</span>`:''}
-      <select class="filter-chip" style="border:1px solid #2a2a2e;padding:3px 8px;font-size:11px;background:#1a1a1e;color:#666;border-radius:100px;outline:none" onchange="S.notes=S.notes.map(n=>n.id===${note.id}?{...n,tagId:this.value?Number(this.value):null}:n);commit()"><option value="">Tag…</option>${S.tags.map(t=>`<option value="${t.id}"${note.tagId==t.id?' selected':''}>${esc(t.name)}</option>`).join('')}</select>
-      <button style="background:#1a1a1e;border:1px solid #2a2a2e;color:#555;border-radius:7px;padding:4px 10px;font-size:11px;transition:all .15s" onclick="${isSorting?`S.sortNoteId=null;S.sortItems=[];render()`:`startSort(${note.id})`}">${isSorting?'Cancel':'Sort into tasks'}</button>
+      <select class="filter-chip" style="border:1px solid #ddd8d2;padding:3px 8px;font-size:11px;background:#f5f3ef;color:#666;border-radius:100px;outline:none" onchange="S.notes=S.notes.map(n=>n.id===${note.id}?{...n,tagId:this.value?Number(this.value):null}:n);commit()"><option value="">Tag…</option>${S.tags.map(t=>`<option value="${t.id}"${note.tagId==t.id?' selected':''}>${esc(t.name)}</option>`).join('')}</select>
+      <button style="background:#f5f3ef;border:1px solid #ddd8d2;color:#6b7280;border-radius:7px;padding:4px 10px;font-size:11px;transition:all .15s" onclick="${isSorting?`S.sortNoteId=null;S.sortItems=[];render()`:`startSort(${note.id})`}">${isSorting?'Cancel':'Sort into tasks'}</button>
       <button class="ibtn" onclick="deleteNote(${note.id})">${iDel}</button>
     </div></div>`;
   });
@@ -868,7 +868,7 @@ function renderShopping(){
   let h=`<div class="sectitle">Shopping List</div><div class="secsub">${pending.length} to get · ${bought.length} bought</div>`;
   h+=filterBar(S.shopFilter,'setShopFilter');
   h+=`<button class="primary-add" onclick="openModal('addShop')">+ Add item</button>`;
-  if(bought.length)h+=`<button onclick="clearBought()" style="background:transparent;border:1px solid #2a2a2e;color:#555;border-radius:8px;padding:7px 13px;font-size:12px;margin-bottom:12px;transition:all .15s" onmouseover="this.style.borderColor='#9a4a4a';this.style.color='#9a5a5a'" onmouseout="this.style.borderColor='#2a2a2e';this.style.color='#555'">Clear bought (${bought.length})</button>`;
+  if(bought.length)h+=`<button onclick="clearBought()" style="background:transparent;border:1px solid #ddd8d2;color:#6b7280;border-radius:8px;padding:7px 13px;font-size:12px;margin-bottom:12px;transition:all .15s" onmouseover="this.style.borderColor='#9a4a4a';this.style.color='#9a5a5a'" onmouseout="this.style.borderColor='#2a2a2e';this.style.color='#555'">Clear bought (${bought.length})</button>`;
   if(!S.shopping.length)return h+`<div class="empty"><div class="eicon">🛒</div><div class="etxt">Empty list.</div></div>`;
   fp.forEach(g=>{h+=renderShopRow(g,false);});
   if(fb.length){h+=`<div class="done-lbl">Bought</div>`;fb.forEach(g=>{h+=renderShopRow(g,true);});}
@@ -882,9 +882,9 @@ function renderShopRow(g,isDone){
     <div class="shopwrap">
       <div class="shoptext${isDone?' done':''}">${esc(g.text)}</div>
       <div class="tmeta">
-        ${g.qty?`<span style="font-size:10px;color:#555;background:#1a1a1e;border-radius:4px;padding:2px 6px">${esc(g.qty)}</span>`:''}
+        ${g.qty?`<span style="font-size:10px;color:#6b7280;background:#f5f3ef;border-radius:4px;padding:2px 6px">${esc(g.qty)}</span>`:''}
         ${tg?`<span class="tag-pill" style="background:${tg.color}22;color:${tg.color}">${esc(tg.name)}</span>`:''}
-        ${g.notes?`<span style="font-size:10px;color:#444">has notes</span>`:''}
+        ${g.notes?`<span style="font-size:10px;color:#9ca3af">has notes</span>`:''}
       </div>
     </div>
     <button class="ibtn" onclick="openModal('editShop',{id:${g.id},title:'${g.text.replace(/'/g,"\\'")}',qty:'${(g.qty||'').replace(/'/g,"\\'")}',notes:'${(g.notes||'').replace(/'/g,"\\'")}',tagId:${g.tagId||'null'}})">${iEdit}</button>
@@ -894,9 +894,9 @@ function renderShopRow(g,isDone){
 // ── TAG MANAGER ──
 function renderTagMgr(){
   let h=`<div class="sectitle">Tag Manager</div><div class="secsub">Create and manage your color tags.</div>`;
-  h+=`<div style="background:#13131a;border:1px solid #1e1e24;border-radius:13px;padding:18px;margin-bottom:20px">
-    <div style="font-size:12px;color:#555;text-transform:uppercase;letter-spacing:.08em;font-weight:500;margin-bottom:12px">Create a new tag</div>
-    <div style="margin-bottom:10px"><div style="font-size:11px;color:#444;margin-bottom:7px">Pick a color</div>
+  h+=`<div style="background:#ffffff;border:1px solid #e8e3dc;border-radius:13px;padding:18px;margin-bottom:20px">
+    <div style="font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:.08em;font-weight:500;margin-bottom:12px">Create a new tag</div>
+    <div style="margin-bottom:10px"><div style="font-size:11px;color:#9ca3af;margin-bottom:7px">Pick a color</div>
       <div style="display:flex;flex-wrap:wrap;gap:8px">`;
   TAG_COLORS.forEach(c=>{h+=`<div class="tcolor-swatch${S.newTagColor===c?' sel':''}" style="background:${c}" onclick="S.newTagColor='${c}';render()"></div>`;});
   h+=`</div></div>
@@ -904,13 +904,13 @@ function renderTagMgr(){
       <input class="minput" placeholder="Tag name…" id="tagNameInp" value="${esc(S.newTagName)}" oninput="S.newTagName=this.value" onkeydown="if(event.key==='Enter')addTag()"/>
       <button class="save-btn" style="flex:0;padding:11px 18px;font-size:13px" onclick="addTag()">Add tag</button>
     </div>
-    ${S.newTagName&&!S.newTagName.trim()?'<div style="font-size:12px;color:#9a5a5a;margin-top:6px">Enter a tag name.</div>':''}
+    ${S.newTagName&&!S.newTagName.trim()?'<div style="font-size:12px;color:#bc0a0a;margin-top:6px">Enter a tag name.</div>':''}
   </div>`;
   if(!S.tags.length)return h+`<div class="empty"><div class="eicon">🏷️</div><div class="etxt">No tags yet. Create your first one above.</div></div>`;
-  h+=`<div style="font-size:12px;color:#555;text-transform:uppercase;letter-spacing:.08em;font-weight:500;margin-bottom:10px">Your tags (${S.tags.length})</div>`;
+  h+=`<div style="font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:.08em;font-weight:500;margin-bottom:10px">Your tags (${S.tags.length})</div>`;
   S.tags.forEach(t=>{h+=`<div class="tag-card">
     <div style="width:28px;height:28px;border-radius:50%;background:${t.color};flex-shrink:0"></div>
-    <div style="flex:1"><div style="font-size:14px;color:#c8c5bc;font-weight:500">${esc(t.name)}</div></div>
+    <div style="flex:1"><div style="font-size:14px;color:#374151;font-weight:500">${esc(t.name)}</div></div>
     <button class="ibtn" onclick="if(confirm('Delete tag &quot;${esc(t.name)}&quot;?'))deleteTag(${t.id})">${iDel}</button>
   </div>`;});
   return h;
