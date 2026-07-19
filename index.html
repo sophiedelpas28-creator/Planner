@@ -7,21 +7,21 @@
 <title>Planner</title>
 <link href="https://fonts.googleapis.com/css2?family=Mulish:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet"/>
 <style>
-/* ── PALETTE ── */
+/* PALETTE */
 :root{
-  --bg:#fffdfa;--bg2:#fefafa;--bg3:#f4f0eb;
-  --card:#ffffff;--card2:#faf8f5;
-  --border:#e8e2d9;--border2:#d4ccc2;
-  --text:#111827;--text2:#6b7280;--text3:#9ca3af;
-  --primary:#bc0a0a;--primary-h:#a00808;
-  --secondary:#d92452;
-  --accent:#2271ee;
-  --lavender:#e5c4f7;
-  --success:#92d576;--warning:#e9c90b;--error:#b72929;
-  --teal:#90b6b6;
-  --shadow:0 1px 3px rgba(17,24,39,.08),0 1px 2px rgba(17,24,39,.04);
-  --shadow-md:0 4px 12px rgba(17,24,39,.10),0 2px 4px rgba(17,24,39,.06);
-  --shadow-lg:0 10px 30px rgba(17,24,39,.14),0 4px 10px rgba(17,24,39,.08);
+ --bg:#fffdfa;--bg2:#fefafa;--bg3:#f4f0eb;
+ --card:#ffffff;--card2:#faf8f5;
+ --border:#e8e2d9;--border2:#d4ccc2;
+ --text:#111827;--text2:#6b7280;--text3:#9ca3af;
+ --primary:#bc0a0a;--primary-h:#a00808;
+ --secondary:#d92452;
+ --accent:#2271ee;
+ --lavender:#e5c4f7;
+ --success:#22c55e;--warning:#eab308;--error:#ef4444;
+ --teal:#90b6b6;
+ --shadow:0 1px 3px rgba(17,24,39,.08),0 1px 2px rgba(17,24,39,.04);
+ --shadow-md:0 4px 12px rgba(17,24,39,.10),0 2px 4px rgba(17,24,39,.06);
+ --shadow-lg:0 10px 30px rgba(17,24,39,.14),0 4px 10px rgba(17,24,39,.08);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Mulish','Segoe UI',sans-serif}
@@ -254,9 +254,9 @@ input,button,textarea,select{font-family:inherit}button{cursor:pointer}
 .tcolor-swatch.sel{border-color:var(--text)}
 
 @media(max-width:600px){
-  .wrap{padding:14px 12px 90px}.topbar{padding:0 14px}
-  .calcell{min-height:46px}.cchip{display:none}.acard{padding:28px 18px}.sidebar{width:84vw}
-  .modal{padding:20px 16px 30px}
+ .wrap{padding:14px 12px 90px}.topbar{padding:0 14px}
+ .calcell{min-height:46px}.cchip{display:none}.acard{padding:28px 18px}.sidebar{width:84vw}
+ .modal{padding:20px 16px 30px}
 }
 </style>
 </head>
@@ -269,29 +269,29 @@ const SUPA_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 const sb=window.supabase.createClient(SUPA_URL,SUPA_KEY);
 
 const TAG_COLORS=["#e05a5a","#e07a3a","#d4a843","#5a9a5a","#4a7ab5","#8a5ab5","#b54a8a","#5a9a9a","#7a7a7a","#9a7a4a","#6a9a7a","#c06060"];
-const EV_TYPES=[{v:"event",l:"📅 Event"},{v:"meeting",l:"📞 Meeting"},{v:"birthday",l:"🎂 Birthday"},{v:"wedding",l:"💍 Wedding"},{v:"party",l:"🎉 Party"},{v:"travel",l:"✈️ Travel"},{v:"reminder",l:"⏰ Reminder"},{v:"other",l:"📌 Other"}];
-const BASE_SECS=[{id:"today",label:"Today"},{id:"tomorrow",label:"Tomorrow"},{id:"thisweek",label:"This Week"},{id:"nextweek",label:"Next Week"},{id:"thismonth",label:"This Month"},{id:"nextmonth",label:"Next Month"},{id:"future",label:"Someday"}];
-const NAV=[{id:"review",label:"Daily Review",icon:"☀️"},{id:"tasks",label:"Tasks",icon:"📋"},{id:"everyday",label:"Everyday",icon:"🔥"},{id:"dump",label:"Brain Dump",icon:"📝"},{id:"shopping",label:"Shopping List",icon:"🛒"},{id:"events",label:"Events",icon:"📅"},{id:"tagmgr",label:"Tag Manager",icon:"🏷️"}];
+const EV_TYPES=[{v:"event",l:"Event"},{v:"meeting",l:"Meeting"},{v:"birthday",l:"Birthday"},{v:"wedding",l:"Wedding"},{v:"party",l:"Party"},{v:"travel",l:"Travel"},{v:"reminder",l:"Reminder"},{v:"other",l:"Other"}];
+const BASE_SECS=[];
+const NAV=[{id:"review",label:"Daily Review",icon:"·"},{id:"tasks",label:"Tasks",icon:"·"},{id:"everyday",label:"Everyday",icon:"·"},{id:"dump",label:"Brain Dump",icon:"·"},{id:"shopping",label:"Shopping List",icon:"·"},{id:"events",label:"Events",icon:"·"},{id:"tagmgr",label:"Tag Manager",icon:"·"}];
 
 let uid=null;
 let S={
-  screen:"login",authMode:"signin",tab:"review",sidebarOpen:false,fabOpen:false,
-  tasks:{},habits:[],habitLog:{},events:[],shopping:[],customSecs:[],tags:[],notes:[],
-  sec:"today",editId:null,editText:"",filterTag:null,addingSec:false,newSecLabel:"",
-  shopFilter:null,noteFilter:null,evFilter:null,pendingFilter:null,
-  sortNoteId:null,sortItems:[],
-  // modal state
-  modal:null, // null | {type:'addTask'|'editTask'|'addEvent'|'editEvent'|'addShop'|'editShop'|'addNote'|'addTaskFromDay'|'addEventFromDay', data:{}}
-  modalData:{title:'',notes:'',dueDate:'',tagId:null,time:'',evType:'event',qty:'',content:'',subtasks:[],newSub:''},
-  newTagName:'',newTagColor:TAG_COLORS[0],
-  modalAddingTag:false,modalNewTagName:'',modalNewTagColor:TAG_COLORS[0],
-  inlineTag:false,inlineTagName:'',inlineTagColor:TAG_COLORS[0],
-  newHabit:'',
-  calY:new Date().getFullYear(),calM:new Date().getMonth(),selDay:null,
-  email:'',password:'',authErr:'',sync:'synced',
+ screen:"login",authMode:"signin",tab:"review",sidebarOpen:false,fabOpen:false,
+ tasks:{},habits:[],habitLog:{},events:[],shopping:[],customSecs:[],tags:[],notes:[],
+ sec:"",editId:null,editText:"",filterTag:null,addingSec:false,newSecLabel:"",
+ shopFilter:null,noteFilter:null,evFilter:null,pendingFilter:null,
+ sortNoteId:null,sortItems:[],
+ // modal state
+ modal:null, // null | {type:'addTask'|'editTask'|'addEvent'|'editEvent'|'addShop'|'editShop'|'addNote'|'addTaskFromDay'|'addEventFromDay', data:{}}
+ modalData:{title:'',notes:'',dueDate:'',tagId:null,time:'',evType:'event',qty:'',content:'',subtasks:[],newSub:''},
+ newTagName:'',newTagColor:TAG_COLORS[0],
+ modalAddingTag:false,modalNewTagName:'',modalNewTagColor:TAG_COLORS[0],
+ inlineTag:false,inlineTagName:'',inlineTagColor:TAG_COLORS[0],
+ newHabit:'',
+ calY:new Date().getFullYear(),calM:new Date().getMonth(),selDay:null,
+ email:'',password:'',authErr:'',sync:'synced',
 };
 
-// ── UTILS ──
+// UTILS 
 function tkey(){return new Date().toISOString().slice(0,10)}
 function dkey(y,m,d){return`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
@@ -306,148 +306,148 @@ function eventsForDay(ds){return(S.events||[]).filter(e=>e.date===ds)}
 function getTag(id){return S.tags.find(t=>t.id==id)||null}
 function allSecs(){return[...BASE_SECS,...S.customSecs]}
 function tagBadge(tagId){const t=getTag(tagId);if(!t)return'';return`<span class="tag-pill" style="background:${t.color}22;color:${t.color}">${esc(t.name)}</span>`;}
-function evTypeLabel(v){return EV_TYPES.find(t=>t.v===v)?.l||'📅 Event';}
+function evTypeLabel(v){return EV_TYPES.find(t=>t.v===v)?.l||' Event';}
 
-// ── AUTH ──
+// AUTH 
 async function doAuth(){
-  const email=S.email.trim(),pass=S.password.trim();
-  if(!email||!pass){S.authErr="Fill in both fields.";render();return;}
-  if(S.authMode==='signup'&&pass.length<6){S.authErr="Password must be 6+ chars.";render();return;}
-  S.authErr='';
-  if(S.authMode==='signin'){
-    const{data,error}=await sb.auth.signInWithPassword({email,password:pass});
-    if(error){S.authErr="Wrong email or password.";render();return;}
-    if(data.user)await startApp(data.user);
-  } else {
-    const{data,error}=await sb.auth.signUp({email,password:pass});
-    if(error){S.authErr=error.message;render();return;}
-    if(data.user){if(!data.user.identities?.length){S.authErr="Email already registered. Sign in instead.";S.authMode='signin';render();return;}await startApp(data.user);}
-  }
+ const email=S.email.trim(),pass=S.password.trim();
+ if(!email||!pass){S.authErr="Fill in both fields.";render();return;}
+ if(S.authMode==='signup'&&pass.length<6){S.authErr="Password must be 6+ chars.";render();return;}
+ S.authErr='';
+ if(S.authMode==='signin'){
+ const{data,error}=await sb.auth.signInWithPassword({email,password:pass});
+ if(error){S.authErr="Wrong email or password.";render();return;}
+ if(data.user)await startApp(data.user);
+ } else {
+ const{data,error}=await sb.auth.signUp({email,password:pass});
+ if(error){S.authErr=error.message;render();return;}
+ if(data.user){if(!data.user.identities?.length){S.authErr="Email already registered. Sign in instead.";S.authMode='signin';render();return;}await startApp(data.user);}
+ }
 }
 async function signOut(){await sb.auth.signOut();uid=null;Object.assign(S,{screen:"login",tasks:{},habits:[],habitLog:{},events:[],shopping:[],customSecs:[],tags:[],notes:[],email:"",password:"",authErr:""});render();}
 
-// ── DATA ──
+// DATA 
 async function load(userId){
-  try{
-    const{data}=await sb.from('planner_data').select('*').eq('user_id',userId).single();
-    if(data){
-      const t=data.tasks||{};
-      S.shopping=t._shopping||[];S.customSecs=t._customSecs||[];S.tags=t._tags||[];S.notes=t._notes||[];
-      const{_shopping,_customSecs,_tags,_notes,...actual}=t;
-      S.tasks=actual;S.habits=data.habits||[];S.habitLog=data.habit_log||{};S.events=data.events||[];
-    }
-    S.sync='synced';
-  }catch(e){S.sync='error';}
+ try{
+ const{data}=await sb.from('planner_data').select('*').eq('user_id',userId).single();
+ if(data){
+ const t=data.tasks||{};
+ S.shopping=t._shopping||[];S.customSecs=t._customSecs||[];S.tags=t._tags||[];S.notes=t._notes||[];
+ const{_shopping,_customSecs,_tags,_notes,...actual}=t;
+ S.tasks=actual;S.habits=data.habits||[];S.habitLog=data.habit_log||{};S.events=data.events||[];
+ }
+ S.sync='synced';
+ }catch(e){S.sync='error';}
 }
 async function save(){
-  if(!uid)return;S.sync='syncing';render();
-  try{
-    const tasksToSave={...S.tasks,_shopping:S.shopping,_customSecs:S.customSecs,_tags:S.tags,_notes:S.notes};
-    await sb.from('planner_data').upsert({user_id:uid,tasks:tasksToSave,habits:S.habits,habit_log:S.habitLog,events:S.events,updated_at:new Date().toISOString()},{onConflict:'user_id'});
-    S.sync='synced';
-  }catch(e){S.sync='error';}
-  render();
+ if(!uid)return;S.sync='syncing';render();
+ try{
+ const tasksToSave={...S.tasks,_shopping:S.shopping,_customSecs:S.customSecs,_tags:S.tags,_notes:S.notes};
+ await sb.from('planner_data').upsert({user_id:uid,tasks:tasksToSave,habits:S.habits,habit_log:S.habitLog,events:S.events,updated_at:new Date().toISOString()},{onConflict:'user_id'});
+ S.sync='synced';
+ }catch(e){S.sync='error';}
+ render();
 }
 function commit(){save();}
 
-// ── INLINE TAG IN MODAL ──
+// INLINE TAG IN MODAL 
 function addInlineTag(){
-  const name=S.modalNewTagName.trim();if(!name)return;
-  const id=Date.now();
-  S.tags.push({id,name,color:S.modalNewTagColor});
-  S.modalData.tagId=id;
-  S.modalAddingTag=false;S.modalNewTagName='';
-  render();
+ const name=S.modalNewTagName.trim();if(!name)return;
+ const id=Date.now();
+ S.tags.push({id,name,color:S.modalNewTagColor});
+ S.modalData.tagId=id;
+ S.modalAddingTag=false;S.modalNewTagName='';
+ render();
 }
 
-// ── TAG ACTIONS ──
+// TAG ACTIONS 
 function addTag(){
-  const name=S.newTagName.trim();
-  if(!name)return;
-  S.tags.push({id:Date.now(),name,color:S.newTagColor});
-  S.newTagName='';
-  commit();
+ const name=S.newTagName.trim();
+ if(!name)return;
+ S.tags.push({id:Date.now(),name,color:S.newTagColor});
+ S.newTagName='';
+ commit();
 }
 function deleteTag(id){S.tags=S.tags.filter(t=>t.id!=id);commit();}
 function setNewTagColor(c){S.newTagColor=c;render();}
 
-// ── MODAL ──
+// MODAL 
 function openModal(type,prefill={}){
-  S.modal=type;
-  S.modalData={title:'',notes:'',dueDate:'',tagId:null,time:'',evType:'event',qty:'',content:'',subtasks:[],newSub:'',...prefill};
-  S.fabOpen=false;
-  render();
+ S.modal=type;
+ S.modalData={title:'',notes:'',dueDate:'',tagId:null,time:'',evType:'event',qty:'',content:'',subtasks:[],newSub:'',...prefill};
+ S.fabOpen=false;
+ render();
 }
 function closeModal(){S.modal=null;render();}
 function md(field,val){S.modalData[field]=val;}
 function addModalSub(){
-  const t=S.modalData.newSub.trim();if(!t)return;
-  S.modalData.subtasks=[...S.modalData.subtasks,{id:Date.now(),text:t,done:false}];
-  S.modalData.newSub='';render();
+ const t=S.modalData.newSub.trim();if(!t)return;
+ S.modalData.subtasks=[...S.modalData.subtasks,{id:Date.now(),text:t,done:false}];
+ S.modalData.newSub='';render();
 }
 function delModalSub(id){S.modalData.subtasks=S.modalData.subtasks.filter(s=>s.id!==id);render();}
 function toggleModalSub(id){S.modalData.subtasks=S.modalData.subtasks.map(s=>s.id===id?{...s,done:!s.done}:s);render();}
 
 function saveTask(){
-  const d=S.modalData;
-  if(!d.title.trim())return;
-  if(S.modal==='editTask'){
-    S.tasks[S.sec]=S.tasks[S.sec].map(t=>t.id===d.id?{...t,text:d.title.trim(),notes:d.notes,dueDate:d.dueDate,tagId:d.tagId?Number(d.tagId):null,subtasks:d.subtasks}:t);
-  } else {
-    const sec=d.targetSec||S.sec;
-    if(!S.tasks[sec])S.tasks[sec]=[];
-    S.tasks[sec].push({id:Date.now(),text:d.title.trim(),done:false,notes:d.notes,dueDate:d.dueDate,tagId:d.tagId?Number(d.tagId):null,subtasks:d.subtasks||[]});
-  }
-  closeModal();commit();
+ const d=S.modalData;
+ if(!d.title.trim())return;
+ if(S.modal==='editTask'){
+ S.tasks[S.sec]=S.tasks[S.sec].map(t=>t.id===d.id?{...t,text:d.title.trim(),notes:d.notes,dueDate:d.dueDate,tagId:d.tagId?Number(d.tagId):null,subtasks:d.subtasks}:t);
+ } else {
+ const sec=d.targetSec||S.sec;
+ if(!S.tasks[sec])S.tasks[sec]=[];
+ S.tasks[sec].push({id:Date.now(),text:d.title.trim(),done:false,notes:d.notes,dueDate:d.dueDate,tagId:d.tagId?Number(d.tagId):null,subtasks:d.subtasks||[]});
+ }
+ closeModal();commit();
 }
 function saveEvent(){
-  const d=S.modalData;
-  if(!d.title.trim()||!d.dueDate)return;
-  if(S.modal==='editEvent'){
-    S.events=S.events.map(e=>e.id===d.id?{...e,title:d.title.trim(),date:d.dueDate,time:d.time,type:d.evType,notes:d.notes,tagId:d.tagId?Number(d.tagId):null}:e);
-  } else {
-    S.events.push({id:Date.now(),title:d.title.trim(),date:d.dueDate,time:d.time,type:d.evType,notes:d.notes,tagId:d.tagId?Number(d.tagId):null});
-  }
-  closeModal();commit();
+ const d=S.modalData;
+ if(!d.title.trim()||!d.dueDate)return;
+ if(S.modal==='editEvent'){
+ S.events=S.events.map(e=>e.id===d.id?{...e,title:d.title.trim(),date:d.dueDate,time:d.time,type:d.evType,notes:d.notes,tagId:d.tagId?Number(d.tagId):null}:e);
+ } else {
+ S.events.push({id:Date.now(),title:d.title.trim(),date:d.dueDate,time:d.time,type:d.evType,notes:d.notes,tagId:d.tagId?Number(d.tagId):null});
+ }
+ closeModal();commit();
 }
 function saveShop(){
-  const d=S.modalData;
-  if(!d.title.trim())return;
-  if(S.modal==='editShop'){
-    S.shopping=S.shopping.map(g=>g.id===d.id?{...g,text:d.title.trim(),qty:d.qty,notes:d.notes,tagId:d.tagId?Number(d.tagId):null}:g);
-  } else {
-    S.shopping.push({id:Date.now(),text:d.title.trim(),qty:d.qty,notes:d.notes,tagId:d.tagId?Number(d.tagId):null,done:false});
-  }
-  closeModal();commit();
+ const d=S.modalData;
+ if(!d.title.trim())return;
+ if(S.modal==='editShop'){
+ S.shopping=S.shopping.map(g=>g.id===d.id?{...g,text:d.title.trim(),qty:d.qty,notes:d.notes,tagId:d.tagId?Number(d.tagId):null}:g);
+ } else {
+ S.shopping.push({id:Date.now(),text:d.title.trim(),qty:d.qty,notes:d.notes,tagId:d.tagId?Number(d.tagId):null,done:false});
+ }
+ closeModal();commit();
 }
 function saveNote(){
-  const d=S.modalData;
-  if(!d.content.trim()&&!d.title.trim())return;
-  S.notes.unshift({id:Date.now(),title:d.title.trim(),content:d.content,tagId:d.tagId?Number(d.tagId):null,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()});
-  closeModal();commit();
+ const d=S.modalData;
+ if(!d.content.trim()&&!d.title.trim())return;
+ S.notes.unshift({id:Date.now(),title:d.title.trim(),content:d.content,tagId:d.tagId?Number(d.tagId):null,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()});
+ closeModal();commit();
 }
 function saveHabitModal(){
-  const d=S.modalData;
-  if(!d.title.trim())return;
-  S.habits.push({id:Date.now(),text:d.title.trim()});
-  closeModal();commit();
+ const d=S.modalData;
+ if(!d.title.trim())return;
+ S.habits.push({id:Date.now(),text:d.title.trim()});
+ closeModal();commit();
 }
 
-// ── TASK ACTIONS ──
+// TASK ACTIONS 
 function toggleTask(sec,id){
-  if(!S.tasks[sec])return;
-  S.tasks[sec]=S.tasks[sec].map(t=>t.id===id?{...t,done:!t.done}:t);commit();
+ if(!S.tasks[sec])return;
+ S.tasks[sec]=S.tasks[sec].map(t=>t.id===id?{...t,done:!t.done}:t);commit();
 }
 function deleteTask(id){
-  S.tasks[S.sec]=(S.tasks[S.sec]||[]).filter(t=>t.id!==id);commit();
+ S.tasks[S.sec]=(S.tasks[S.sec]||[]).filter(t=>t.id!==id);commit();
 }
 function addCustomSec(){
-  const label=S.newSecLabel.trim();if(!label)return;
-  const id='c_'+Date.now();S.customSecs.push({id,label});S.tasks[id]=[];S.newSecLabel='';S.addingSec=false;S.sec=id;commit();
+ const label=S.newSecLabel.trim();if(!label)return;
+ const id='c_'+Date.now();S.customSecs.push({id,label});S.tasks[id]=[];S.newSecLabel='';S.addingSec=false;S.sec=id;commit();
 }
 function deleteCustomSec(id){S.customSecs=S.customSecs.filter(s=>s.id!==id);delete S.tasks[id];if(S.sec===id)S.sec='today';commit();}
 
-// ── EVENT/SHOP/NOTE ACTIONS ──
+// EVENT/SHOP/NOTE ACTIONS 
 function deleteEvent(id){S.events=S.events.filter(e=>e.id!==id);commit();}
 function toggleShop(id){S.shopping=S.shopping.map(g=>g.id===id?{...g,done:!g.done}:g);commit();}
 function deleteShop(id){S.shopping=S.shopping.filter(g=>g.id!==id);commit();}
@@ -458,17 +458,17 @@ function startSort(noteId){const note=S.notes.find(n=>n.id===noteId);if(!note)re
 function moveSortItem(idx,sec){if(!S.tasks[sec])S.tasks[sec]=[];S.tasks[sec].push({id:Date.now(),text:S.sortItems[idx].text,done:false,notes:'',dueDate:'',tagId:null,subtasks:[]});S.sortItems[idx]={...S.sortItems[idx],sorted:true};if(S.sortItems.every(i=>i.sorted)){S.sortNoteId=null;S.sortItems=[];}commit();}
 function discardSortItem(idx){S.sortItems[idx]={...S.sortItems[idx],sorted:true};if(S.sortItems.every(i=>i.sorted)){S.sortNoteId=null;S.sortItems=[];}render();}
 
-// ── HABIT ACTIONS ──
+// HABIT ACTIONS 
 function addHabit(){const t=S.newHabit.trim();if(!t)return;S.habits.push({id:Date.now(),text:t});S.newHabit='';commit();}
 function delHabit(id){S.habits=S.habits.filter(h=>h.id!==id);commit();}
 function toggleHabit(id){const tk=tkey();if(!S.habitLog[tk])S.habitLog[tk]={};S.habitLog[tk][id]=!S.habitLog[tk][id];commit();}
 
-// ── CALENDAR ──
+// CALENDAR 
 function prevMonth(){if(S.calM===0){S.calM=11;S.calY--;}else S.calM--;render();}
 function nextMonth(){if(S.calM===11){S.calM=0;S.calY++;}else S.calM++;render();}
 function selectDay(d){S.selDay=S.selDay===d?null:d;render();}
 
-// ── ICONS ──
+// ICONS 
 const iChk=`<svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1 5l2.5 2.5 5.5-5" stroke="#0f0f10" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 const iChkS=`<svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1 4l2 2 4-4" stroke="#0f0f10" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 const iGChk=`<svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1 5l2.5 2.5 5.5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
@@ -476,469 +476,469 @@ const iEdit=`<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d
 const iDel=`<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M1.5 1.5l10 10M11.5 1.5l-10 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`;
 const iHabit=`<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1.5 6l3 3 6-6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
-// ── RENDER MODAL ──
+// RENDER MODAL 
 function renderModal(){
-  const d=S.modalData;
-  const tagOptions=S.tags.map(t=>`<option value="${t.id}"${d.tagId==t.id?' selected':''}>${esc(t.name)}</option>`).join('');
-  const inlineTagForm=S.modalAddingTag?`
-    <div style="background:#f5f3ef;border:1px solid #ddd8d2;border-radius:9px;padding:12px;margin-top:8px">
-      <div style="font-size:11px;color:#6b7280;margin-bottom:8px;font-weight:500;text-transform:uppercase;letter-spacing:.07em">New tag</div>
-      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">
-        ${TAG_COLORS.map(c=>`<div style="width:22px;height:22px;border-radius:50%;background:${c};cursor:pointer;border:2px solid ${S.modalNewTagColor===c?'#fff':'transparent'};flex-shrink:0;transition:transform .1s" onclick="S.modalNewTagColor='${c}';render()"></div>`).join('')}
-      </div>
-      <div style="display:flex;gap:7px">
-        <input class="minput" placeholder="Tag name…" value="${esc(S.modalNewTagName)}" oninput="S.modalNewTagName=this.value" onkeydown="if(event.key==='Enter')addInlineTag()" style="font-size:13px;padding:8px 11px"/>
-        <button onclick="addInlineTag()" style="background:#bc0a0a;color:#ffffff;border:none;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;flex-shrink:0">Add</button>
-        <button onclick="S.modalAddingTag=false;render()" style="background:#f0edea;border:1px solid #ddd8d2;color:#6b7280;border-radius:8px;padding:8px 12px;font-size:13px;flex-shrink:0">✕</button>
-      </div>
-    </div>`:''
-  const tagSelect=`<div style="display:flex;gap:7px;align-items:center">
-    <select class="mselect" style="flex:1" onchange="S.modalData.tagId=this.value"><option value="">No tag</option>${tagOptions}</select>
-    <button onclick="S.modalAddingTag=!S.modalAddingTag;render()" title="Create new tag" style="width:34px;height:34px;flex-shrink:0;border-radius:8px;border:1px dashed #c8c2bb;background:transparent;color:#666;font-size:18px;line-height:1;display:flex;align-items:center;justify-content:center;transition:all .15s" onmouseover="this.style.borderColor='#888';this.style.color='#ccc'" onmouseout="this.style.borderColor='#3a3a40';this.style.color='#666'">+</button>
-  </div>${inlineTagForm}`;
+ const d=S.modalData;
+ const tagOptions=S.tags.map(t=>`<option value="${t.id}"${d.tagId==t.id?' selected':''}>${esc(t.name)}</option>`).join('');
+ const inlineTagForm=S.modalAddingTag?`
+ <div style="background:#f5f3ef;border:1px solid #ddd8d2;border-radius:9px;padding:12px;margin-top:8px">
+ <div style="font-size:11px;color:#6b7280;margin-bottom:8px;font-weight:500;text-transform:uppercase;letter-spacing:.07em">New tag</div>
+ <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">
+ ${TAG_COLORS.map(c=>`<div style="width:22px;height:22px;border-radius:50%;background:${c};cursor:pointer;border:2px solid ${S.modalNewTagColor===c?'#fff':'transparent'};flex-shrink:0;transition:transform .1s" onclick="S.modalNewTagColor='${c}';render()"></div>`).join('')}
+ </div>
+ <div style="display:flex;gap:7px">
+ <input class="minput" placeholder="Tag name…" value="${esc(S.modalNewTagName)}" oninput="S.modalNewTagName=this.value" onkeydown="if(event.key==='Enter')addInlineTag()" style="font-size:13px;padding:8px 11px"/>
+ <button onclick="addInlineTag()" style="background:#bc0a0a;color:#ffffff;border:none;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;flex-shrink:0">Add</button>
+ <button onclick="S.modalAddingTag=false;render()" style="background:#f0edea;border:1px solid #ddd8d2;color:#6b7280;border-radius:8px;padding:8px 12px;font-size:13px;flex-shrink:0"></button>
+ </div>
+ </div>`:''
+ const tagSelect=`<div style="display:flex;gap:7px;align-items:center">
+ <select class="mselect" style="flex:1" onchange="S.modalData.tagId=this.value"><option value="">No tag</option>${tagOptions}</select>
+ <button onclick="S.modalAddingTag=!S.modalAddingTag;render()" title="Create new tag" style="width:34px;height:34px;flex-shrink:0;border-radius:8px;border:1px dashed #c8c2bb;background:transparent;color:#666;font-size:18px;line-height:1;display:flex;align-items:center;justify-content:center;transition:all .15s" onmouseover="this.style.borderColor='#888';this.style.color='#ccc'" onmouseout="this.style.borderColor='#3a3a40';this.style.color='#666'">+</button>
+ </div>${inlineTagForm}`;
 
-  let inner='';
-  if(S.modal==='addTask'||S.modal==='editTask'||S.modal==='addTaskFromDay'){
-    const isEdit=S.modal==='editTask';
-    inner=`<div class="modal-handle"></div>
-      <div class="modal-title">${isEdit?'Edit Task':'New Task'}</div>
-      <div class="mfield"><label>Task name</label><input class="minput" placeholder="What needs to be done?" value="${esc(d.title)}" oninput="S.modalData.title=this.value" autofocus/></div>
-      <div class="mfield"><label>Due date</label><input type="date" class="mselect" value="${esc(d.dueDate)}" onchange="S.modalData.dueDate=this.value"/></div>
-      <div class="mfield"><label>Tag</label>${tagSelect}</div>
-      <div class="mfield"><label>Notes</label><textarea class="mtextarea" placeholder="Add notes…" oninput="S.modalData.notes=this.value">${esc(d.notes)}</textarea></div>
-      <div class="mfield"><label>Subtasks</label>
-        ${d.subtasks.length?`<div class="sub-list">${d.subtasks.map(s=>`<div class="sub-item"><button class="scbox${s.done?' done':''}" onclick="toggleModalSub(${s.id})">${s.done?`<svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1 4l2 2 4-4" stroke="#0f0f10" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`:''}</button><span class="sub-text${s.done?' done':''}">${esc(s.text)}</span><button class="sdel" onclick="delModalSub(${s.id})">${iDel}</button></div>`).join('')}</div>`:''}
-        <div class="sub-add-row"><input class="sub-input" id="subInp" placeholder="Add subtask…" value="${esc(d.newSub)}" oninput="S.modalData.newSub=this.value" onkeydown="if(event.key==='Enter'){addModalSub()}"/><button class="sub-add-btn" onclick="addModalSub()">+ Add</button></div>
-      </div>
-      <div class="modal-actions">
-        <button class="cancel-btn" onclick="closeModal()">Cancel</button>
-        ${isEdit?`<button class="del-btn" onclick="deleteTask(${d.id});closeModal()">Delete</button>`:''}
-        <button class="save-btn" onclick="saveTask()">Save task</button>
-      </div>`;
-  }
-  else if(S.modal==='addEvent'||S.modal==='editEvent'||S.modal==='addEventFromDay'){
-    const isEdit=S.modal==='editEvent';
-    inner=`<div class="modal-handle"></div>
-      <div class="modal-title">${isEdit?'Edit Event':'New Event'}</div>
-      <div class="mfield"><label>Event name</label><input class="minput" placeholder="What's the event?" value="${esc(d.title)}" oninput="S.modalData.title=this.value" autofocus/></div>
-      <div class="mfield"><label>Date</label><input type="date" class="mselect" value="${esc(d.dueDate)}" onchange="S.modalData.dueDate=this.value"/></div>
-      <div class="mfield"><label>Time (optional)</label><input type="time" class="mselect" value="${esc(d.time)}" onchange="S.modalData.time=this.value"/></div>
-      <div class="mfield"><label>Type</label><select class="mselect" onchange="S.modalData.evType=this.value">${EV_TYPES.map(t=>`<option value="${t.v}"${d.evType===t.v?' selected':''}>${t.l}</option>`).join('')}</select></div>
-      <div class="mfield"><label>Tag</label>${tagSelect}</div>
-      <div class="mfield"><label>Notes</label><textarea class="mtextarea" placeholder="Details…" oninput="S.modalData.notes=this.value">${esc(d.notes)}</textarea></div>
-      <div class="modal-actions">
-        <button class="cancel-btn" onclick="closeModal()">Cancel</button>
-        ${isEdit?`<button class="del-btn" onclick="deleteEvent(${d.id});closeModal()">Delete</button>`:''}
-        <button class="save-btn" onclick="saveEvent()">Save event</button>
-      </div>`;
-  }
-  else if(S.modal==='addShop'||S.modal==='editShop'){
-    const isEdit=S.modal==='editShop';
-    inner=`<div class="modal-handle"></div>
-      <div class="modal-title">${isEdit?'Edit Item':'Add Item'}</div>
-      <div class="mfield"><label>Item name</label><input class="minput" placeholder="What to buy?" value="${esc(d.title)}" oninput="S.modalData.title=this.value" autofocus/></div>
-      <div class="mfield"><label>Quantity</label><input class="minput" placeholder="e.g. 2kg, 3 packs…" value="${esc(d.qty)}" oninput="S.modalData.qty=this.value"/></div>
-      <div class="mfield"><label>Tag</label>${tagSelect}</div>
-      <div class="mfield"><label>Notes</label><textarea class="mtextarea" placeholder="Brand, store, etc." oninput="S.modalData.notes=this.value">${esc(d.notes)}</textarea></div>
-      <div class="modal-actions">
-        <button class="cancel-btn" onclick="closeModal()">Cancel</button>
-        ${isEdit?`<button class="del-btn" onclick="deleteShop(${d.id});closeModal()">Delete</button>`:''}
-        <button class="save-btn" onclick="saveShop()">Save item</button>
-      </div>`;
-  }
-  else if(S.modal==='addNote'){
-    inner=`<div class="modal-handle"></div>
-      <div class="modal-title">New Note</div>
-      <div class="mfield"><label>Title (optional)</label><input class="minput" placeholder="Give it a title…" value="${esc(d.title)}" oninput="S.modalData.title=this.value"/></div>
-      <div class="mfield"><label>Content</label><textarea class="mtextarea" placeholder="Write anything…" style="min-height:120px" oninput="S.modalData.content=this.value" autofocus>${esc(d.content)}</textarea></div>
-      <div class="mfield"><label>Tag</label>${tagSelect}</div>
-      <div class="modal-actions">
-        <button class="cancel-btn" onclick="closeModal()">Cancel</button>
-        <button class="save-btn" onclick="saveNote()">Save note</button>
-      </div>`;
-  }
-  else if(S.modal==='addHabit'){
-    inner=`<div class="modal-handle"></div>
-      <div class="modal-title">New Habit</div>
-      <div class="mfield"><label>Habit name</label><input class="minput" placeholder="e.g. Read 20 pages, Meditate…" value="${esc(d.title)}" oninput="S.modalData.title=this.value" autofocus/></div>
-      <div class="modal-actions">
-        <button class="cancel-btn" onclick="closeModal()">Cancel</button>
-        <button class="save-btn" onclick="saveHabitModal()">Save habit</button>
-      </div>`;
-  }
+ let inner='';
+ if(S.modal==='addTask'||S.modal==='editTask'||S.modal==='addTaskFromDay'){
+ const isEdit=S.modal==='editTask';
+ inner=`<div class="modal-handle"></div>
+ <div class="modal-title">${isEdit?'Edit Task':'New Task'}</div>
+ <div class="mfield"><label>Task name</label><input class="minput" placeholder="What needs to be done?" value="${esc(d.title)}" oninput="S.modalData.title=this.value" autofocus/></div>
+ <div class="mfield"><label>Due date</label><input type="date" class="mselect" value="${esc(d.dueDate)}" onchange="S.modalData.dueDate=this.value"/></div>
+ <div class="mfield"><label>Tag</label>${tagSelect}</div>
+ <div class="mfield"><label>Notes</label><textarea class="mtextarea" placeholder="Add notes…" oninput="S.modalData.notes=this.value">${esc(d.notes)}</textarea></div>
+ <div class="mfield"><label>Subtasks</label>
+ ${d.subtasks.length?`<div class="sub-list">${d.subtasks.map(s=>`<div class="sub-item"><button class="scbox${s.done?' done':''}" onclick="toggleModalSub(${s.id})">${s.done?`<svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1 4l2 2 4-4" stroke="#0f0f10" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`:''}</button><span class="sub-text${s.done?' done':''}">${esc(s.text)}</span><button class="sdel" onclick="delModalSub(${s.id})">${iDel}</button></div>`).join('')}</div>`:''}
+ <div class="sub-add-row"><input class="sub-input" id="subInp" placeholder="Add subtask…" value="${esc(d.newSub)}" oninput="S.modalData.newSub=this.value" onkeydown="if(event.key==='Enter'){addModalSub()}"/><button class="sub-add-btn" onclick="addModalSub()">+ Add</button></div>
+ </div>
+ <div class="modal-actions">
+ <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+ ${isEdit?`<button class="del-btn" onclick="deleteTask(${d.id});closeModal()">Delete</button>`:''}
+ <button class="save-btn" onclick="saveTask()">Save task</button>
+ </div>`;
+ }
+ else if(S.modal==='addEvent'||S.modal==='editEvent'||S.modal==='addEventFromDay'){
+ const isEdit=S.modal==='editEvent';
+ inner=`<div class="modal-handle"></div>
+ <div class="modal-title">${isEdit?'Edit Event':'New Event'}</div>
+ <div class="mfield"><label>Event name</label><input class="minput" placeholder="What's the event?" value="${esc(d.title)}" oninput="S.modalData.title=this.value" autofocus/></div>
+ <div class="mfield"><label>Date</label><input type="date" class="mselect" value="${esc(d.dueDate)}" onchange="S.modalData.dueDate=this.value"/></div>
+ <div class="mfield"><label>Time (optional)</label><input type="time" class="mselect" value="${esc(d.time)}" onchange="S.modalData.time=this.value"/></div>
+ <div class="mfield"><label>Type</label><select class="mselect" onchange="S.modalData.evType=this.value">${EV_TYPES.map(t=>`<option value="${t.v}"${d.evType===t.v?' selected':''}>${t.l}</option>`).join('')}</select></div>
+ <div class="mfield"><label>Tag</label>${tagSelect}</div>
+ <div class="mfield"><label>Notes</label><textarea class="mtextarea" placeholder="Details…" oninput="S.modalData.notes=this.value">${esc(d.notes)}</textarea></div>
+ <div class="modal-actions">
+ <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+ ${isEdit?`<button class="del-btn" onclick="deleteEvent(${d.id});closeModal()">Delete</button>`:''}
+ <button class="save-btn" onclick="saveEvent()">Save event</button>
+ </div>`;
+ }
+ else if(S.modal==='addShop'||S.modal==='editShop'){
+ const isEdit=S.modal==='editShop';
+ inner=`<div class="modal-handle"></div>
+ <div class="modal-title">${isEdit?'Edit Item':'Add Item'}</div>
+ <div class="mfield"><label>Item name</label><input class="minput" placeholder="What to buy?" value="${esc(d.title)}" oninput="S.modalData.title=this.value" autofocus/></div>
+ <div class="mfield"><label>Quantity</label><input class="minput" placeholder="e.g. 2kg, 3 packs…" value="${esc(d.qty)}" oninput="S.modalData.qty=this.value"/></div>
+ <div class="mfield"><label>Tag</label>${tagSelect}</div>
+ <div class="mfield"><label>Notes</label><textarea class="mtextarea" placeholder="Brand, store, etc." oninput="S.modalData.notes=this.value">${esc(d.notes)}</textarea></div>
+ <div class="modal-actions">
+ <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+ ${isEdit?`<button class="del-btn" onclick="deleteShop(${d.id});closeModal()">Delete</button>`:''}
+ <button class="save-btn" onclick="saveShop()">Save item</button>
+ </div>`;
+ }
+ else if(S.modal==='addNote'){
+ inner=`<div class="modal-handle"></div>
+ <div class="modal-title">New Note</div>
+ <div class="mfield"><label>Title (optional)</label><input class="minput" placeholder="Give it a title…" value="${esc(d.title)}" oninput="S.modalData.title=this.value"/></div>
+ <div class="mfield"><label>Content</label><textarea class="mtextarea" placeholder="Write anything…" style="min-height:120px" oninput="S.modalData.content=this.value" autofocus>${esc(d.content)}</textarea></div>
+ <div class="mfield"><label>Tag</label>${tagSelect}</div>
+ <div class="modal-actions">
+ <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+ <button class="save-btn" onclick="saveNote()">Save note</button>
+ </div>`;
+ }
+ else if(S.modal==='addHabit'){
+ inner=`<div class="modal-handle"></div>
+ <div class="modal-title">New Habit</div>
+ <div class="mfield"><label>Habit name</label><input class="minput" placeholder="e.g. Read 20 pages, Meditate…" value="${esc(d.title)}" oninput="S.modalData.title=this.value" autofocus/></div>
+ <div class="modal-actions">
+ <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+ <button class="save-btn" onclick="saveHabitModal()">Save habit</button>
+ </div>`;
+ }
 
-  return`<div class="modal-backdrop" onclick="if(event.target===this)closeModal()"><div class="modal">${inner}</div></div>`;
+ return`<div class="modal-backdrop" onclick="if(event.target===this)closeModal()"><div class="modal">${inner}</div></div>`;
 }
 
-// ── FILTER BAR ──
+// FILTER BAR 
 function filterBar(current,onClickFn){
-  if(!S.tags.length)return'';
-  let h=`<div class="filter-bar"><span style="font-size:11px;color:#9ca3af">Filter:</span>
-    <button class="filter-chip${!current?' on':''}" onclick="${onClickFn}(null)" style="${!current?'border-color:#6b7280;color:#ccc':''}">All</button>`;
-  S.tags.forEach(t=>{const on=current==t.id;h+=`<button class="filter-chip${on?' on':''}" onclick="${onClickFn}(${t.id})" style="${on?`border-color:${t.color};color:${t.color}`:''}"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${t.color};margin-right:3px;vertical-align:middle"></span>${esc(t.name)}</button>`;});
-  h+=`</div>`;return h;
+ if(!S.tags.length)return'';
+ let h=`<div class="filter-bar"><span style="font-size:11px;color:#9ca3af">Filter:</span>
+ <button class="filter-chip${!current?' on':''}" onclick="${onClickFn}(null)" style="${!current?'border-color:#6b7280;color:#ccc':''}">All</button>`;
+ S.tags.forEach(t=>{const on=current==t.id;h+=`<button class="filter-chip${on?' on':''}" onclick="${onClickFn}(${t.id})" style="${on?`border-color:${t.color};color:${t.color}`:''}"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${t.color};margin-right:3px;vertical-align:middle"></span>${esc(t.name)}</button>`;});
+ h+=`</div>`;return h;
 }
 
-// ── RENDER MAIN ──
+// RENDER MAIN 
 function render(){
-  const app=document.getElementById('app');
-  if(S.screen!=='app'){app.innerHTML=renderAuth();return;}
-  const pageTitle=NAV.find(n=>n.id===S.tab)?.label||'';
-  let h=`
-  <div class="backdrop${S.sidebarOpen?' open':''}" onclick="S.sidebarOpen=false;render()"></div>
-  <div class="sidebar${S.sidebarOpen?' open':''}">
-    <div class="sidebar-head"><span class="sidebar-logo"><span>✦</span> Planner</span><button class="sidebar-close" onclick="S.sidebarOpen=false;render()">×</button></div>
-    <nav class="sidebar-nav">`;
-  NAV.forEach(n=>{h+=`<button class="snav-item${S.tab===n.id?' active':''}" onclick="S.tab='${n.id}';S.sidebarOpen=false;render()"><span class="snav-icon">${n.icon}</span><span>${n.label}</span></button>`;});
-  h+=`</nav></div>
-  <div class="shell">
-    <div class="topbar">
-      <button class="star-btn" onclick="S.sidebarOpen=true;render()">✦</button>
-      <span class="page-title">${esc(pageTitle)}</span>
-      <div class="topbar-right"><button class="sout" onclick="signOut()">Sign out</button></div>
-    </div>
-    <div class="scroll"><div class="wrap">`;
-  if(S.tab==='review')   h+=renderReview();
-  if(S.tab==='tasks')    h+=renderTasks();
-  if(S.tab==='everyday') h+=renderHabits();
-  if(S.tab==='dump')     h+=renderDump();
-  if(S.tab==='shopping') h+=renderShopping();
-  if(S.tab==='events')   h+=renderEvents();
-  if(S.tab==='tagmgr')   h+=renderTagMgr();
-  h+=`</div></div></div>`;
-  // FAB (not on tagmgr/review fab already there)
-  h+=renderFab();
-  const sl={synced:'Synced',syncing:'Syncing…',error:'Sync error'}[S.sync]||'';
-  h+=`<div class="syncbar"><div class="sdot ${S.sync}"></div><span>${sl}</span></div>`;
-  if(S.modal)h+=renderModal();
-  app.innerHTML=h;
-  // auto-focus modal input
-  if(S.modal){const el=document.querySelector('.modal input[autofocus],.modal textarea[autofocus]');if(el)el.focus();}
-  if(S.addingSec){const el=document.getElementById('newSecInp');if(el)el.focus();}
+ const app=document.getElementById('app');
+ if(S.screen!=='app'){app.innerHTML=renderAuth();return;}
+ const pageTitle=NAV.find(n=>n.id===S.tab)?.label||'';
+ let h=`
+ <div class="backdrop${S.sidebarOpen?' open':''}" onclick="S.sidebarOpen=false;render()"></div>
+ <div class="sidebar${S.sidebarOpen?' open':''}">
+ <div class="sidebar-head"><span class="sidebar-logo"><span></span> Planner</span><button class="sidebar-close" onclick="S.sidebarOpen=false;render()">&times;×</button></div>
+ <nav class="sidebar-nav">`;
+ NAV.forEach(n=>{h+=`<button class="snav-item${S.tab===n.id?' active':''}" onclick="S.tab='${n.id}';S.sidebarOpen=false;render()"><span class="snav-icon">${n.icon}</span><span>${n.label}</span></button>`;});
+ h+=`</nav></div>
+ <div class="shell">
+ <div class="topbar">
+ <button class="star-btn" onclick="S.sidebarOpen=true;render()">&#10022;</button>
+ <span class="page-title">${esc(pageTitle)}</span>
+ <div class="topbar-right"><button class="sout" onclick="signOut()">Sign out</button></div>
+ </div>
+ <div class="scroll"><div class="wrap">`;
+ if(S.tab==='review') h+=renderReview();
+ if(S.tab==='tasks') h+=renderTasks();
+ if(S.tab==='everyday') h+=renderHabits();
+ if(S.tab==='dump') h+=renderDump();
+ if(S.tab==='shopping') h+=renderShopping();
+ if(S.tab==='events') h+=renderEvents();
+ if(S.tab==='tagmgr') h+=renderTagMgr();
+ h+=`</div></div></div>`;
+ // FAB (not on tagmgr/review fab already there)
+ h+=renderFab();
+ const sl={synced:'Synced',syncing:'Syncing…',error:'Sync error'}[S.sync]||'';
+ h+=`<div class="syncbar"><div class="sdot ${S.sync}"></div><span>${sl}</span></div>`;
+ if(S.modal)h+=renderModal();
+ app.innerHTML=h;
+ // auto-focus modal input
+ if(S.modal){const el=document.querySelector('.modal input[autofocus],.modal textarea[autofocus]');if(el)el.focus();}
+ if(S.addingSec){const el=document.getElementById('newSecInp');if(el)el.focus();}
 }
 
 function renderFab(){
-  let h=``;
-  if(S.fabOpen){
-    h+=`<div class="fab-menu">`;
-    h+=`<button class="fab-item" onclick="openModal('addTask')">📋 Task</button>`;
-    h+=`<button class="fab-item" onclick="openModal('addEvent')">📅 Event</button>`;
-    h+=`<button class="fab-item" onclick="openModal('addNote')">📝 Note</button>`;
-    h+=`<button class="fab-item" onclick="openModal('addHabit')">🔥 Habit</button>`;
-    h+=`<button class="fab-item" onclick="openModal('addShop')">🛒 Shopping item</button>`;
-    h+=`</div>`;
-  }
-  h+=`<button class="fab" onclick="S.fabOpen=!S.fabOpen;render()">${S.fabOpen?'×':'+'}</button>`;
-  return h;
+ let h=``;
+ if(S.fabOpen){
+ h+=`<div class="fab-menu">`;
+ h+=`<button class="fab-item" onclick="openModal('addTask')">Task</button>`;
+ h+=`<button class="fab-item" onclick="openModal('addEvent')">Event</button>`;
+ h+=`<button class="fab-item" onclick="openModal('addNote')">Note</button>`;
+ h+=`<button class="fab-item" onclick="openModal('addHabit')">Habit</button>`;
+ h+=`<button class="fab-item" onclick="openModal('addShop')">Shopping item</button>`;
+ h+=`</div>`;
+ }
+ h+=`<button class="fab" onclick="S.fabOpen=!S.fabOpen;render()">${S.fabOpen?'×':'+'}</button>`;
+ return h;
 }
 
-// ── REVIEW ──
+// REVIEW 
 function renderReview(){
-  const today=tkey(),hour=new Date().getHours();
-  const greeting=hour<12?'Good morning ☀️':hour<17?'Good afternoon 🌤':hour<21?'Good evening 🌙':'Good night 🌙';
-  const yk=new Date(Date.now()-86400000).toISOString().slice(0,10);
-  const missedYest=S.habits.filter(h=>!S.habitLog[yk]?.[h.id]);
-  let h=`<div style="font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--text);padding-top:14px">${greeting}</div>
-  <div style="font-size:12px;color:var(--text2);margin-bottom:14px;font-weight:600">${new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div>`;
-  h+=renderCalendar();
-  if(S.habits.length){
-    h+=`<div class="divr"></div>`;
-    if(missedYest.length){h+=`<div style="font-size:11px;color:var(--error);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:8px">🔥 Habits missed yesterday · ${missedYest.length}/${S.habits.length}</div><div style="background:var(--card);border:1.5px solid var(--border);border-radius:11px;padding:10px 13px;margin-bottom:4px">`;missedYest.forEach(h=>{h+=`<div style="display:flex;align-items:center;gap:7px;padding:5px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--text2);font-weight:500"><div style="width:6px;height:6px;border-radius:50%;background:var(--error);flex-shrink:0"></div>${esc(h.text)}</div>`;});h+=`</div>`;}
-    else{h+=`<div style="font-size:12px;color:var(--success);margin-bottom:10px;font-weight:600">🔥 All habits done yesterday!</div>`;}
-  }
-  h+=`<div class="divr"></div>`;
-  h+=filterBar(S.pendingFilter,'setPendingFilter');
-  const flat=allTasksFlat().filter(t=>!t.done);
-  const filtered=S.pendingFilter?flat.filter(t=>t.tagId==S.pendingFilter):flat;
-  const sorted=[...filtered.filter(t=>t.dueDate&&t.dueDate<today),...filtered.filter(t=>t.dueDate===today),...filtered.filter(t=>t.dueDate&&t.dueDate>today).sort((a,b)=>a.dueDate.localeCompare(b.dueDate)),...filtered.filter(t=>!t.dueDate&&t.sec==='today'),...filtered.filter(t=>!t.dueDate&&t.sec!=='today')];
-  h+=`<div style="font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:10px">All Pending Tasks · ${sorted.length}</div>`;
-  if(!sorted.length)return h+`<div class="empty" style="padding:24px 0"><div class="etxt">No pending tasks.</div></div>`;
-  sorted.forEach(t=>{
-    const rel=relDate(t.dueDate);const tg=getTag(t.tagId);
-    h+=`<div class="pending-task">
-      <button class="cbox${t.done?' done':''}" onclick="toggleTask('${t.sec}',${t.id})">${t.done?iChk:''}</button>
-      <div class="pt-info">
-        <div class="pt-text">${esc(t.text)}</div>
-        <div class="pt-meta">
-          ${t.dueDate?`<span class="pt-date${rel?' '+rel:''}">${fmtDate(t.dueDate)}</span>`:''}
-          <span>${t.sec}</span>
-          ${tg?`<span class="tag-pill" style="background:${tg.color}22;color:${tg.color}">${esc(tg.name)}</span>`:''}
-        </div>
-      </div>
-      <button class="ibtn" onclick="openModal('editTask',{id:${t.id},title:'${t.text.replace(/'/g,"\\'")}',notes:'${(t.notes||'').replace(/'/g,"\\'")}',dueDate:'${t.dueDate||''}',tagId:${t.tagId||'null'},subtasks:${JSON.stringify(t.subtasks||[])},targetSec:'${t.sec}'});S.sec='${t.sec}'">${iEdit}</button>
-    </div>`;
-  });
-  return h;
+ const today=tkey(),hour=new Date().getHours();
+ const greeting=hour<12?'Good morning':hour<17?'Good afternoon':hour<21?'Good evening':'Good night';
+ const yk=new Date(Date.now()-86400000).toISOString().slice(0,10);
+ const missedYest=S.habits.filter(h=>!S.habitLog[yk]?.[h.id]);
+ let h=`<div style="font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--text);padding-top:14px">${greeting}</div>
+ <div style="font-size:12px;color:var(--text2);margin-bottom:14px;font-weight:600">${new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div>`;
+ h+=renderCalendar();
+ if(S.habits.length){
+ h+=`<div class="divr"></div>`;
+ if(missedYest.length){h+=`<div style="font-size:11px;color:var(--error);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:8px">Habits missed yesterday · ${missedYest.length}/${S.habits.length}</div><div style="background:var(--card);border:1.5px solid var(--border);border-radius:11px;padding:10px 13px;margin-bottom:4px">`;missedYest.forEach(h=>{h+=`<div style="display:flex;align-items:center;gap:7px;padding:5px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--text2);font-weight:500"><div style="width:6px;height:6px;border-radius:50%;background:var(--error);flex-shrink:0"></div>${esc(h.text)}</div>`;});h+=`</div>`;}
+ else{h+=`<div style="font-size:12px;color:var(--success);margin-bottom:10px;font-weight:600">All habits done yesterday!</div>`;}
+ }
+ h+=`<div class="divr"></div>`;
+ h+=filterBar(S.pendingFilter,'setPendingFilter');
+ const flat=allTasksFlat().filter(t=>!t.done);
+ const filtered=S.pendingFilter?flat.filter(t=>t.tagId==S.pendingFilter):flat;
+ const sorted=[...filtered.filter(t=>t.dueDate&&t.dueDate<today),...filtered.filter(t=>t.dueDate===today),...filtered.filter(t=>t.dueDate&&t.dueDate>today).sort((a,b)=>a.dueDate.localeCompare(b.dueDate)),...filtered.filter(t=>!t.dueDate&&t.sec==='today'),...filtered.filter(t=>!t.dueDate&&t.sec!=='today')];
+ h+=`<div style="font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:10px">All Pending Tasks · ${sorted.length}</div>`;
+ if(!sorted.length)return h+`<div class="empty" style="padding:24px 0"><div class="etxt">No pending tasks.</div></div>`;
+ sorted.forEach(t=>{
+ const rel=relDate(t.dueDate);const tg=getTag(t.tagId);
+ h+=`<div class="pending-task">
+ <button class="cbox${t.done?' done':''}" onclick="toggleTask('${t.sec}',${t.id})">${t.done?iChk:''}</button>
+ <div class="pt-info">
+ <div class="pt-text">${esc(t.text)}</div>
+ <div class="pt-meta">
+ ${t.dueDate?`<span class="pt-date${rel?' '+rel:''}">${fmtDate(t.dueDate)}</span>`:''}
+ <span>${t.sec}</span>
+ ${tg?`<span class="tag-pill" style="background:${tg.color}22;color:${tg.color}">${esc(tg.name)}</span>`:''}
+ </div>
+ </div>
+ <button class="ibtn" onclick="openModal('editTask',{id:${t.id},title:'${t.text.replace(/'/g,"\\'")}',notes:'${(t.notes||'').replace(/'/g,"\\'")}',dueDate:'${t.dueDate||''}',tagId:${t.tagId||'null'},subtasks:${JSON.stringify(t.subtasks||[])},targetSec:'${t.sec}'});S.sec='${t.sec}'">${iEdit}</button>
+ </div>`;
+ });
+ return h;
 }
 function setPendingFilter(id){S.pendingFilter=id;render();}
 
-// ── CALENDAR ──
+// CALENDAR 
 function renderCalendar(){
-  const y=S.calY,m=S.calM,today=tkey();
-  const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
-  const first=new Date(y,m,1).getDay(),dim=new Date(y,m+1,0).getDate(),dimp=new Date(y,m,0).getDate();
-  let h=`<div class="calhead">
-    <button class="calnav" onclick="prevMonth()">← Prev</button>
-    <div class="calmtitle">${months[m]} ${y}</div>
-    <button class="calnav" onclick="nextMonth()">Next →</button>
-  </div><div class="calgrid">`;
-  ['Su','Mo','Tu','We','Th','Fr','Sa'].forEach(d=>{h+=`<div class="caldh">${d}</div>`;});
-  const total=Math.ceil((first+dim)/7)*7;
-  for(let i=0;i<total;i++){
-    let day,mo=0;
-    if(i<first){day=dimp-first+i+1;mo=-1;}
-    else if(i>=first+dim){day=i-first-dim+1;mo=1;}
-    else day=i-first+1;
-    const ds=dkey(y,m+mo,day);
-    const isT=ds===today,isSel=ds===S.selDay,isO=mo!==0;
-    const dt=tasksForDay(ds),de=eventsForDay(ds);
-    h+=`<div class="calcell${isO?' om':''}${isT?' tdy':''}${isSel?' sel':''}" onclick="selectDay('${ds}')">
-      <div class="cdn">${day}</div>`;
-    if(dt.length||de.length){
-      h+=`<div class="cdots">`;
-      dt.forEach(t=>{const tg=getTag(t.tagId);h+=`<div class="ctdot" style="background:${tg?tg.color:'#b5a98c'}"></div>`;});
-      de.forEach(e=>{const tg=getTag(e.tagId);h+=`<div class="ctdot" style="background:${tg?tg.color:'#5a9a7a'}"></div>`;});
-      h+=`</div>`;
-      dt.slice(0,1).forEach(t=>{const tg=getTag(t.tagId);h+=`<span class="cchip" style="background:${tg?tg.color+'22':'#1e1c18'};color:${tg?tg.color:'#8a7a60'}">📋${esc(t.text)}</span>`;});
-      de.slice(0,1).forEach(e=>{const tg=getTag(e.tagId);const em=EV_TYPES.find(t=>t.v===e.type)?.l.split(' ')[0]||'📅';h+=`<span class="cchip" style="background:${tg?tg.color+'22':'#182018'};color:${tg?tg.color:'#5a9a7a'}">${em}${esc(e.title)}</span>`;});
-    }
-    h+=`</div>`;
-  }
-  h+=`</div>`;
-  if(S.selDay){
-    const st=tasksForDay(S.selDay),se=eventsForDay(S.selDay);
-    const dl=new Date(S.selDay+'T12:00:00').toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
-    h+=`<div class="daypanel"><div class="dptitle">${dl}</div>
-      <div class="dp-add-btns">
-        <button class="dp-add-btn" onclick="openModal('addTaskFromDay',{dueDate:'${S.selDay}',targetSec:'today'})">+ Add task</button>
-        <button class="dp-add-btn" onclick="openModal('addEventFromDay',{dueDate:'${S.selDay}',evType:'event'})">+ Add event</button>
-      </div>`;
-    if(se.length){
-      h+=`<div class="dpsec">Events</div>`;
-      se.forEach(e=>{const tg=getTag(e.tagId);const em=EV_TYPES.find(t=>t.v===e.type)?.l||'📅 Event';h+=`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #e8e3dc">
-        <div style="width:8px;height:8px;border-radius:50%;background:${tg?tg.color:'#5a9a7a'};flex-shrink:0"></div>
-        <div style="flex:1"><div style="font-size:13px;color:#4b5563">${esc(e.title)}</div><div style="font-size:11px;color:#6b7280">${em}${e.time?' · '+e.time:''}${tg?' · '+tg.name:''}</div></div>
-        <button class="ibtn" onclick="openModal('editEvent',{id:${e.id},title:'${e.title.replace(/'/g,"\\'")}',dueDate:'${e.date}',time:'${e.time||''}',evType:'${e.type||'event'}',notes:'${(e.notes||'').replace(/'/g,"\\'")}',tagId:${e.tagId||'null'}})">${iEdit}</button>
-      </div>`;});
-    }
-    if(st.length){
-      h+=`<div class="dpsec">Tasks due</div>`;
-      st.forEach(t=>{const tg=getTag(t.tagId);h+=`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #e8e3dc">
-        <button class="cbox${t.done?' done':''}" style="width:16px;height:16px;border-radius:4px;border:1.5px solid ${t.done?'#b5a98c':'#3a3a40'};background:${t.done?'#b5a98c':'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0" onclick="toggleTask('${t.sec}',${t.id})">${t.done?iChkS:''}</button>
-        <span style="flex:1;font-size:13px;color:${t.done?'#444':'#999'};${t.done?'text-decoration:line-through':''}">${esc(t.text)}</span>
-        ${tg?`<span style="width:7px;height:7px;border-radius:50%;background:${tg.color};flex-shrink:0;display:inline-block"></span>`:''}
-      </div>`;});
-    }
-    if(!st.length&&!se.length)h+=`<div style="text-align:center;padding:12px 0;color:#c4bdb5;font-size:13px">Nothing here yet.</div>`;
-    h+=`</div>`;
-  }
-  return h;
+ const y=S.calY,m=S.calM,today=tkey();
+ const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+ const first=new Date(y,m,1).getDay(),dim=new Date(y,m+1,0).getDate(),dimp=new Date(y,m,0).getDate();
+ let h=`<div class="calhead">
+ <button class="calnav" onclick="prevMonth()">← Prev</button>
+ <div class="calmtitle">${months[m]} ${y}</div>
+ <button class="calnav" onclick="nextMonth()">Next →</button>
+ </div><div class="calgrid">`;
+ ['Su','Mo','Tu','We','Th','Fr','Sa'].forEach(d=>{h+=`<div class="caldh">${d}</div>`;});
+ const total=Math.ceil((first+dim)/7)*7;
+ for(let i=0;i<total;i++){
+ let day,mo=0;
+ if(i<first){day=dimp-first+i+1;mo=-1;}
+ else if(i>=first+dim){day=i-first-dim+1;mo=1;}
+ else day=i-first+1;
+ const ds=dkey(y,m+mo,day);
+ const isT=ds===today,isSel=ds===S.selDay,isO=mo!==0;
+ const dt=tasksForDay(ds),de=eventsForDay(ds);
+ h+=`<div class="calcell${isO?' om':''}${isT?' tdy':''}${isSel?' sel':''}" onclick="selectDay('${ds}')">
+ <div class="cdn">${day}</div>`;
+ if(dt.length||de.length){
+ h+=`<div class="cdots">`;
+ dt.forEach(t=>{const tg=getTag(t.tagId);h+=`<div class="ctdot" style="background:${tg?tg.color:'#b5a98c'}"></div>`;});
+ de.forEach(e=>{const tg=getTag(e.tagId);h+=`<div class="ctdot" style="background:${tg?tg.color:'#5a9a7a'}"></div>`;});
+ h+=`</div>`;
+ dt.slice(0,1).forEach(t=>{const tg=getTag(t.tagId);h+=`<span class="cchip" style="background:${tg?tg.color+'22':'#1e1c18'};color:${tg?tg.color:'#8a7a60'}">${esc(t.text)}</span>`;});
+ de.slice(0,1).forEach(e=>{const tg=getTag(e.tagId);const em=EV_TYPES.find(t=>t.v===e.type)?.l.split(' ')[0]||'';h+=`<span class="cchip" style="background:${tg?tg.color+'22':'#182018'};color:${tg?tg.color:'#5a9a7a'}">${em}${esc(e.title)}</span>`;});
+ }
+ h+=`</div>`;
+ }
+ h+=`</div>`;
+ if(S.selDay){
+ const st=tasksForDay(S.selDay),se=eventsForDay(S.selDay);
+ const dl=new Date(S.selDay+'T12:00:00').toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
+ h+=`<div class="daypanel"><div class="dptitle">${dl}</div>
+ <div class="dp-add-btns">
+ <button class="dp-add-btn" onclick="openModal('addTaskFromDay',{dueDate:'${S.selDay}',targetSec:'today'})">+ Add task</button>
+ <button class="dp-add-btn" onclick="openModal('addEventFromDay',{dueDate:'${S.selDay}',evType:'event'})">+ Add event</button>
+ </div>`;
+ if(se.length){
+ h+=`<div class="dpsec">Events</div>`;
+ se.forEach(e=>{const tg=getTag(e.tagId);const em=EV_TYPES.find(t=>t.v===e.type)?.l||' Event';h+=`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #e8e3dc">
+ <div style="width:8px;height:8px;border-radius:50%;background:${tg?tg.color:'#5a9a7a'};flex-shrink:0"></div>
+ <div style="flex:1"><div style="font-size:13px;color:#4b5563">${esc(e.title)}</div><div style="font-size:11px;color:#6b7280">${em}${e.time?' · '+e.time:''}${tg?' · '+tg.name:''}</div></div>
+ <button class="ibtn" onclick="openModal('editEvent',{id:${e.id},title:'${e.title.replace(/'/g,"\\'")}',dueDate:'${e.date}',time:'${e.time||''}',evType:'${e.type||'event'}',notes:'${(e.notes||'').replace(/'/g,"\\'")}',tagId:${e.tagId||'null'}})">${iEdit}</button>
+ </div>`;});
+ }
+ if(st.length){
+ h+=`<div class="dpsec">Tasks due</div>`;
+ st.forEach(t=>{const tg=getTag(t.tagId);h+=`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #e8e3dc">
+ <button class="cbox${t.done?' done':''}" style="width:16px;height:16px;border-radius:4px;border:1.5px solid ${t.done?'#b5a98c':'#3a3a40'};background:${t.done?'#b5a98c':'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0" onclick="toggleTask('${t.sec}',${t.id})">${t.done?iChkS:''}</button>
+ <span style="flex:1;font-size:13px;color:${t.done?'#444':'#999'};${t.done?'text-decoration:line-through':''}">${esc(t.text)}</span>
+ ${tg?`<span style="width:7px;height:7px;border-radius:50%;background:${tg.color};flex-shrink:0;display:inline-block"></span>`:''}
+ </div>`;});
+ }
+ if(!st.length&&!se.length)h+=`<div style="text-align:center;padding:12px 0;color:#c4bdb5;font-size:13px">Nothing here yet.</div>`;
+ h+=`</div>`;
+ }
+ return h;
 }
 
-// ── TASKS ──
+// TASKS 
 function renderTasks(){
-  const secs=allSecs();
-  let h=`<div class="secnav">`;
-  secs.forEach(s=>{const p=S.tasks[s.id]?S.tasks[s.id].filter(t=>!t.done).length:0;h+=`<button class="sbtn${S.sec===s.id?' active':''}" onclick="S.sec='${s.id}';render()">${esc(s.label)}${p>0?`<span class="badge">${p}</span>`:''}</button>`;});
-  if(S.addingSec){h+=`<input class="new-sec-input" id="newSecInp" placeholder="Name…" oninput="S.newSecLabel=this.value" onkeydown="if(event.key==='Enter')addCustomSec()" onblur="setTimeout(()=>{S.addingSec=false;render()},200)"/>`;}
-  else{h+=`<button class="add-sec-btn" onclick="S.addingSec=true;render()">+</button>`;}
-  h+=`</div>`;
-  const list=S.tasks[S.sec]||[];
-  const todo=list.filter(t=>!t.done),done=list.filter(t=>t.done);
-  const secDef=allSecs().find(s=>s.id===S.sec);
-  const label=secDef?.label||S.sec;
-  const isCustom=S.customSecs.find(s=>s.id===S.sec);
-  h+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-    <div class="sectitle">${esc(label)}</div>
-    ${isCustom?`<button onclick="if(confirm('Delete this section?'))deleteCustomSec('${S.sec}')" style="background:none;border:none;color:#9ca3af;font-size:12px" onmouseover="this.style.color='#9a5a5a'" onmouseout="this.style.color='#3a3a40'">Delete</button>`:''}
-  </div>
-  <div class="secsub">${!list.length?'Nothing here yet.':`${todo.length} remaining · ${done.length} done`}</div>`;
-  h+=filterBar(S.filterTag,'setTaskFilter');
-  h+=`<button class="primary-add" onclick="openModal('addTask',{targetSec:S.sec})">+ Add task</button>`;
-  const ftodo=S.filterTag?todo.filter(t=>t.tagId==S.filterTag):todo;
-  const fdone=S.filterTag?done.filter(t=>t.tagId==S.filterTag):done;
-  if(!list.length)return h+`<div class="empty"><div class="eicon">✦</div><div class="etxt">Clear slate.</div></div>`;
-  h+=`<div class="tasklist">`;
-  ftodo.forEach(t=>{h+=renderTaskRow(t,false);});
-  if(fdone.length){h+=`<div class="done-lbl">Completed</div>`;fdone.forEach(t=>{h+=renderTaskRow(t,true);});}
-  h+=`</div>`;return h;
+ const secs=allSecs();
+ let h=`<div class="secnav">`;
+ secs.forEach(s=>{const p=S.tasks[s.id]?S.tasks[s.id].filter(t=>!t.done).length:0;h+=`<button class="sbtn${S.sec===s.id?' active':''}" onclick="S.sec='${s.id}';render()">${esc(s.label)}${p>0?`<span class="badge">${p}</span>`:''}</button>`;});
+ if(S.addingSec){h+=`<input class="new-sec-input" id="newSecInp" placeholder="Name…" oninput="S.newSecLabel=this.value" onkeydown="if(event.key==='Enter')addCustomSec()" onblur="setTimeout(()=>{S.addingSec=false;render()},200)"/>`;}
+ else{h+=`<button class="add-sec-btn" onclick="S.addingSec=true;render()">+</button>`;}
+ h+=`</div>`;
+ const list=S.tasks[S.sec]||[];
+ const todo=list.filter(t=>!t.done),done=list.filter(t=>t.done);
+ const secDef=allSecs().find(s=>s.id===S.sec);
+ const label=secDef?.label||S.sec;
+ const isCustom=S.customSecs.find(s=>s.id===S.sec);
+ h+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+ <div class="sectitle">${esc(label)}</div>
+ ${isCustom?`<button onclick="if(confirm('Delete this section?'))deleteCustomSec('${S.sec}')" style="background:none;border:none;color:#9ca3af;font-size:12px" onmouseover="this.style.color='#9a5a5a'" onmouseout="this.style.color='#3a3a40'">Delete</button>`:''}
+ </div>
+ <div class="secsub">${!list.length?'Nothing here yet.':`${todo.length} remaining · ${done.length} done`}</div>`;
+ h+=filterBar(S.filterTag,'setTaskFilter');
+ h+=`<button class="primary-add" onclick="openModal('addTask',{targetSec:S.sec})">+ Add task</button>`;
+ const ftodo=S.filterTag?todo.filter(t=>t.tagId==S.filterTag):todo;
+ const fdone=S.filterTag?done.filter(t=>t.tagId==S.filterTag):done;
+ if(!list.length)return h+`<div class="empty"><div class="eicon">—</div><div class="etxt">Clear slate.</div></div>`;
+ h+=`<div class="tasklist">`;
+ ftodo.forEach(t=>{h+=renderTaskRow(t,false);});
+ if(fdone.length){h+=`<div class="done-lbl">Completed</div>`;fdone.forEach(t=>{h+=renderTaskRow(t,true);});}
+ h+=`</div>`;return h;
 }
 function setTaskFilter(id){S.filterTag=id;render();}
 function renderTaskRow(t,isDone){
-  const tg=getTag(t.tagId);const subs=t.subtasks||[];const subDone=subs.filter(s=>s.done).length;
-  return`<div class="trow${isDone?' done-row':''}">
-    <button class="cbox${isDone?' done':''}" onclick="toggleTask('${S.sec}',${t.id})">${isDone?iChk:''}</button>
-    <div class="twrap">
-      <div class="ttext${isDone?' done':''}">${esc(t.text)}</div>
-      <div class="tmeta">
-        ${t.dueDate?`<span class="tdatetag">📅 ${t.dueDate}</span>`:''}
-        ${subs.length?`<span style="font-size:10px;color:#6b7280">${subDone}/${subs.length} sub</span>`:''}
-        ${tg?`<span class="tag-pill" style="background:${tg.color}22;color:${tg.color}">${esc(tg.name)}</span>`:''}
-      </div>
-    </div>
-    <button class="ibtn" onclick="openModal('editTask',{id:${t.id},title:'${t.text.replace(/'/g,"\\'")}',notes:'${(t.notes||'').replace(/'/g,"\\'")}',dueDate:'${t.dueDate||''}',tagId:${t.tagId||'null'},subtasks:${JSON.stringify(subs)},targetSec:'${S.sec}'})">${iEdit}</button>
-  </div>`;
+ const tg=getTag(t.tagId);const subs=t.subtasks||[];const subDone=subs.filter(s=>s.done).length;
+ return`<div class="trow${isDone?' done-row':''}">
+ <button class="cbox${isDone?' done':''}" onclick="toggleTask('${S.sec}',${t.id})">${isDone?iChk:''}</button>
+ <div class="twrap">
+ <div class="ttext${isDone?' done':''}">${esc(t.text)}</div>
+ <div class="tmeta">
+ ${t.dueDate?`<span class="tdatetag"> ${t.dueDate}</span>`:''}
+ ${subs.length?`<span style="font-size:10px;color:#6b7280">${subDone}/${subs.length} sub</span>`:''}
+ ${tg?`<span class="tag-pill" style="background:${tg.color}22;color:${tg.color}">${esc(tg.name)}</span>`:''}
+ </div>
+ </div>
+ <button class="ibtn" onclick="openModal('editTask',{id:${t.id},title:'${t.text.replace(/'/g,"\\'")}',notes:'${(t.notes||'').replace(/'/g,"\\'")}',dueDate:'${t.dueDate||''}',tagId:${t.tagId||'null'},subtasks:${JSON.stringify(subs)},targetSec:'${S.sec}'})">${iEdit}</button>
+ </div>`;
 }
 
-// ── EVENTS PAGE ──
+// EVENTS PAGE 
 function renderEvents(){
-  const filtered=S.evFilter?S.events.filter(e=>e.tagId==S.evFilter):S.events;
-  const sorted=[...filtered].sort((a,b)=>a.date.localeCompare(b.date));
-  let h=`<div class="sectitle">Events</div><div class="secsub">${sorted.length} event${sorted.length!==1?'s':''}</div>`;
-  h+=filterBar(S.evFilter,'setEvFilter');
-  h+=`<button class="primary-add" onclick="openModal('addEvent',{evType:'event'})">+ Add event</button>`;
-  if(!sorted.length)return h+`<div class="empty"><div class="eicon">📅</div><div class="etxt">No events yet.</div></div>`;
-  sorted.forEach(e=>{
-    const tg=getTag(e.tagId);const em=EV_TYPES.find(t=>t.v===e.type)?.l||'📅 Event';const rel=relDate(e.date);
-    h+=`<div class="ev-card">
-      <div class="ev-dot" style="background:${tg?tg.color:'#5a9a7a'}"></div>
-      <div class="ev-info">
-        <div class="ev-title">${esc(e.title)}</div>
-        <div class="ev-meta">
-          <span class="${rel?'pt-date '+rel:''}">${fmtDate(e.date)}</span>
-          ${e.time?`<span>${e.time}</span>`:''}
-          <span>${em}</span>
-          ${tg?`<span class="tag-pill" style="background:${tg.color}22;color:${tg.color}">${esc(tg.name)}</span>`:''}
-          ${e.notes?`<span style="color:#9ca3af">has notes</span>`:''}
-        </div>
-      </div>
-      <button class="ibtn" onclick="openModal('editEvent',{id:${e.id},title:'${e.title.replace(/'/g,"\\'")}',dueDate:'${e.date}',time:'${e.time||''}',evType:'${e.type||'event'}',notes:'${(e.notes||'').replace(/'/g,"\\'")}',tagId:${e.tagId||'null'}})">${iEdit}</button>
-    </div>`;
-  });
-  return h;
+ const filtered=S.evFilter?S.events.filter(e=>e.tagId==S.evFilter):S.events;
+ const sorted=[...filtered].sort((a,b)=>a.date.localeCompare(b.date));
+ let h=`<div class="sectitle">Events</div><div class="secsub">${sorted.length} event${sorted.length!==1?'s':''}</div>`;
+ h+=filterBar(S.evFilter,'setEvFilter');
+ h+=`<button class="primary-add" onclick="openModal('addEvent',{evType:'event'})">+ Add event</button>`;
+ if(!sorted.length)return h+`<div class="empty"><div class="eicon">—</div><div class="etxt">No events yet.</div></div>`;
+ sorted.forEach(e=>{
+ const tg=getTag(e.tagId);const em=EV_TYPES.find(t=>t.v===e.type)?.l||' Event';const rel=relDate(e.date);
+ h+=`<div class="ev-card">
+ <div class="ev-dot" style="background:${tg?tg.color:'#5a9a7a'}"></div>
+ <div class="ev-info">
+ <div class="ev-title">${esc(e.title)}</div>
+ <div class="ev-meta">
+ <span class="${rel?'pt-date '+rel:''}">${fmtDate(e.date)}</span>
+ ${e.time?`<span>${e.time}</span>`:''}
+ <span>${em}</span>
+ ${tg?`<span class="tag-pill" style="background:${tg.color}22;color:${tg.color}">${esc(tg.name)}</span>`:''}
+ ${e.notes?`<span style="color:#9ca3af">has notes</span>`:''}
+ </div>
+ </div>
+ <button class="ibtn" onclick="openModal('editEvent',{id:${e.id},title:'${e.title.replace(/'/g,"\\'")}',dueDate:'${e.date}',time:'${e.time||''}',evType:'${e.type||'event'}',notes:'${(e.notes||'').replace(/'/g,"\\'")}',tagId:${e.tagId||'null'}})">${iEdit}</button>
+ </div>`;
+ });
+ return h;
 }
 function setEvFilter(id){S.evFilter=id;render();}
 
-// ── HABITS ──
+// HABITS 
 function renderHabits(){
-  const today=tkey(),comp=S.habits.filter(h=>S.habitLog[today]?.[h.id]).length,tot=S.habits.length,d7=last7();
-  let h=`<div class="htop"><div><div class="sectitle">Everyday</div><div class="secsub" style="margin-bottom:0">Build streaks, track habits</div></div>`;
-  if(tot>0){const pct=Math.round((comp/tot)*100);h+=`<div style="text-align:right"><div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:800;color:#111827">${comp}/${tot}</div><div style="font-size:11px;color:#9ca3af">today</div><div class="ptrack"><div class="pfill" style="width:${pct}%"></div></div></div>`;}
-  h+=`</div><button class="primary-add" onclick="openModal('addHabit')">+ Add habit</button>`;
-  if(!S.habits.length)return h+`<div class="empty"><div class="eicon">🌱</div><div class="etxt">No habits yet.</div></div>`;
-  S.habits.forEach(habit=>{
-    const isDone=!!(S.habitLog[today]?.[habit.id]),s=streak(habit.id,S.habitLog),b=bestStreak(habit.id,S.habitLog);
-    h+=`<div class="hcard${isDone?' ht':''}"><div class="htoprow">
-      <button class="htoggle${isDone?' done':''}" onclick="toggleHabit(${habit.id})">${isDone?iHabit:''}</button>
-      <div class="hname${isDone?' done':''}">${esc(habit.text)}</div>
-      <div style="display:flex;align-items:center;gap:5px">${s>0?`<div class="hstreak"><span style="font-size:11px">🔥</span><span class="hstreakn">${s}</span></div>`:''}
-      <button class="ibtn" onclick="delHabit(${habit.id})">${iDel}</button></div>
-    </div><div class="hdots">`;
-    d7.forEach(d=>{const hit=!!(S.habitLog[d.key]?.[habit.id]);h+=`<div class="dcol"><div class="hdot${hit?' hit':''}${d.key===today?' td':''}"></div><span class="dlbl">${d.lbl}</span></div>`;});
-    if(b>0)h+=`<div class="best">Best <span>${b}d</span></div>`;
-    h+=`</div></div>`;
-  });
-  return h;
+ const today=tkey(),comp=S.habits.filter(h=>S.habitLog[today]?.[h.id]).length,tot=S.habits.length,d7=last7();
+ let h=`<div class="htop"><div><div class="sectitle">Everyday</div><div class="secsub" style="margin-bottom:0">Build streaks, track habits</div></div>`;
+ if(tot>0){const pct=Math.round((comp/tot)*100);h+=`<div style="text-align:right"><div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:800;color:#111827">${comp}/${tot}</div><div style="font-size:11px;color:#9ca3af">today</div><div class="ptrack"><div class="pfill" style="width:${pct}%"></div></div></div>`;}
+ h+=`</div><button class="primary-add" onclick="openModal('addHabit')">+ Add habit</button>`;
+ if(!S.habits.length)return h+`<div class="empty"><div class="eicon">—</div><div class="etxt">No habits yet.</div></div>`;
+ S.habits.forEach(habit=>{
+ const isDone=!!(S.habitLog[today]?.[habit.id]),s=streak(habit.id,S.habitLog),b=bestStreak(habit.id,S.habitLog);
+ h+=`<div class="hcard${isDone?' ht':''}"><div class="htoprow">
+ <button class="htoggle${isDone?' done':''}" onclick="toggleHabit(${habit.id})">${isDone?iHabit:''}</button>
+ <div class="hname${isDone?' done':''}">${esc(habit.text)}</div>
+ <div style="display:flex;align-items:center;gap:5px">${s>0?`<div class="hstreak"><span style="font-size:11px"></span><span class="hstreakn">${s}</span></div>`:''}
+ <button class="ibtn" onclick="delHabit(${habit.id})">${iDel}</button></div>
+ </div><div class="hdots">`;
+ d7.forEach(d=>{const hit=!!(S.habitLog[d.key]?.[habit.id]);h+=`<div class="dcol"><div class="hdot${hit?' hit':''}${d.key===today?' td':''}"></div><span class="dlbl">${d.lbl}</span></div>`;});
+ if(b>0)h+=`<div class="best">Best <span>${b}d</span></div>`;
+ h+=`</div></div>`;
+ });
+ return h;
 }
 
-// ── BRAIN DUMP (NOTES) ──
+// BRAIN DUMP (NOTES) 
 function renderDump(){
-  const filtered=S.noteFilter?S.notes.filter(n=>n.tagId==S.noteFilter):S.notes;
-  let h=`<div class="sectitle">Brain Dump</div><div class="secsub">Save ideas, rants, notes — anything.</div>`;
-  h+=filterBar(S.noteFilter,'setNoteFilter');
-  h+=`<button class="primary-add" onclick="openModal('addNote')">+ New note</button>`;
-  if(!filtered.length)return h+`<div class="empty"><div class="eicon">📝</div><div class="etxt">No notes yet.</div></div>`;
-  filtered.forEach(note=>{
-    const tg=getTag(note.tagId);const isSorting=S.sortNoteId===note.id;
-    h+=`<div class="note-card" style="${tg?`border-left:3px solid ${tg.color}`:''}">
-      <input class="note-title-input" placeholder="Title…" value="${esc(note.title)}" oninput="updateNote(${note.id},'title',this.value)" onblur="commit()"/>
-      <textarea class="note-body" oninput="updateNote(${note.id},'content',this.value)" onblur="commit()" style="min-height:${isSorting?'32px':'72px'}">${esc(note.content)}</textarea>`;
-    if(isSorting&&S.sortItems.length){
-      h+=`<div class="sort-items">`;
-      S.sortItems.forEach((item,idx)=>{if(item.sorted)return;h+=`<div class="sort-item"><div class="sort-item-text">${esc(item.text)}</div><div class="sort-btns"><button class="smove t" onclick="moveSortItem(${idx},'today')">Today</button><button class="smove" onclick="moveSortItem(${idx},'tomorrow')">Tomorrow</button><button class="smove" onclick="moveSortItem(${idx},'thisweek')">This Week</button><button class="smove" onclick="moveSortItem(${idx},'future')">Someday</button>`;S.customSecs.forEach(cs=>{h+=`<button class="smove" onclick="moveSortItem(${idx},'${cs.id}')">${esc(cs.label)}</button>`;});h+=`<button class="sdiscard" onclick="discardSortItem(${idx})">✕</button></div></div>`;});
-      h+=`</div>`;
-    }
-    h+=`<div class="note-footer">
-      <span class="note-date">${new Date(note.updatedAt||note.createdAt).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</span>
-      ${tg?`<span class="tag-pill" style="background:${tg.color}22;color:${tg.color}">${esc(tg.name)}</span>`:''}
-      <select class="filter-chip" style="border:1px solid #ddd8d2;padding:3px 8px;font-size:11px;background:#f5f3ef;color:#666;border-radius:100px;outline:none" onchange="S.notes=S.notes.map(n=>n.id===${note.id}?{...n,tagId:this.value?Number(this.value):null}:n);commit()"><option value="">Tag…</option>${S.tags.map(t=>`<option value="${t.id}"${note.tagId==t.id?' selected':''}>${esc(t.name)}</option>`).join('')}</select>
-      <button style="background:#f5f3ef;border:1px solid #ddd8d2;color:#6b7280;border-radius:7px;padding:4px 10px;font-size:11px;transition:all .15s" onclick="${isSorting?`S.sortNoteId=null;S.sortItems=[];render()`:`startSort(${note.id})`}">${isSorting?'Cancel':'Sort into tasks'}</button>
-      <button class="ibtn" onclick="deleteNote(${note.id})">${iDel}</button>
-    </div></div>`;
-  });
-  return h;
+ const filtered=S.noteFilter?S.notes.filter(n=>n.tagId==S.noteFilter):S.notes;
+ let h=`<div class="sectitle">Brain Dump</div><div class="secsub">Save ideas, rants, notes — anything.</div>`;
+ h+=filterBar(S.noteFilter,'setNoteFilter');
+ h+=`<button class="primary-add" onclick="openModal('addNote')">+ New note</button>`;
+ if(!filtered.length)return h+`<div class="empty"><div class="eicon">—</div><div class="etxt">No notes yet.</div></div>`;
+ filtered.forEach(note=>{
+ const tg=getTag(note.tagId);const isSorting=S.sortNoteId===note.id;
+ h+=`<div class="note-card" style="${tg?`border-left:3px solid ${tg.color}`:''}">
+ <input class="note-title-input" placeholder="Title…" value="${esc(note.title)}" oninput="updateNote(${note.id},'title',this.value)" onblur="commit()"/>
+ <textarea class="note-body" oninput="updateNote(${note.id},'content',this.value)" onblur="commit()" style="min-height:${isSorting?'32px':'72px'}">${esc(note.content)}</textarea>`;
+ if(isSorting&&S.sortItems.length){
+ h+=`<div class="sort-items">`;
+ S.sortItems.forEach((item,idx)=>{if(item.sorted)return;h+=`<div class="sort-item"><div class="sort-item-text">${esc(item.text)}</div><div class="sort-btns">`;S.customSecs.forEach(cs=>{h+=`<button class="smove" onclick="moveSortItem(${idx},'${cs.id}')">${esc(cs.label)}</button>`;});h+=`<button class="sdiscard" onclick="discardSortItem(${idx})">x</button></div></div>`;});
+ h+=`</div>`;
+ }
+ h+=`<div class="note-footer">
+ <span class="note-date">${new Date(note.updatedAt||note.createdAt).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</span>
+ ${tg?`<span class="tag-pill" style="background:${tg.color}22;color:${tg.color}">${esc(tg.name)}</span>`:''}
+ <select class="filter-chip" style="border:1px solid #ddd8d2;padding:3px 8px;font-size:11px;background:#f5f3ef;color:#666;border-radius:100px;outline:none" onchange="S.notes=S.notes.map(n=>n.id===${note.id}?{...n,tagId:this.value?Number(this.value):null}:n);commit()"><option value="">Tag…</option>${S.tags.map(t=>`<option value="${t.id}"${note.tagId==t.id?' selected':''}>${esc(t.name)}</option>`).join('')}</select>
+ <button style="background:#f5f3ef;border:1px solid #ddd8d2;color:#6b7280;border-radius:7px;padding:4px 10px;font-size:11px;transition:all .15s" onclick="${isSorting?`S.sortNoteId=null;S.sortItems=[];render()`:`startSort(${note.id})`}">${isSorting?'Cancel':'Sort into tasks'}</button>
+ <button class="ibtn" onclick="deleteNote(${note.id})">${iDel}</button>
+ </div></div>`;
+ });
+ return h;
 }
 function setNoteFilter(id){S.noteFilter=id;render();}
 
-// ── SHOPPING ──
+// SHOPPING 
 function renderShopping(){
-  const pending=S.shopping.filter(g=>!g.done),bought=S.shopping.filter(g=>g.done);
-  const fp=S.shopFilter?pending.filter(g=>g.tagId==S.shopFilter):pending;
-  const fb=S.shopFilter?bought.filter(g=>g.tagId==S.shopFilter):bought;
-  let h=`<div class="sectitle">Shopping List</div><div class="secsub">${pending.length} to get · ${bought.length} bought</div>`;
-  h+=filterBar(S.shopFilter,'setShopFilter');
-  h+=`<button class="primary-add" onclick="openModal('addShop')">+ Add item</button>`;
-  if(bought.length)h+=`<button onclick="clearBought()" style="background:transparent;border:1px solid #ddd8d2;color:#6b7280;border-radius:8px;padding:7px 13px;font-size:12px;margin-bottom:12px;transition:all .15s" onmouseover="this.style.borderColor='#9a4a4a';this.style.color='#9a5a5a'" onmouseout="this.style.borderColor='#2a2a2e';this.style.color='#555'">Clear bought (${bought.length})</button>`;
-  if(!S.shopping.length)return h+`<div class="empty"><div class="eicon">🛒</div><div class="etxt">Empty list.</div></div>`;
-  fp.forEach(g=>{h+=renderShopRow(g,false);});
-  if(fb.length){h+=`<div class="done-lbl">Bought</div>`;fb.forEach(g=>{h+=renderShopRow(g,true);});}
-  return h;
+ const pending=S.shopping.filter(g=>!g.done),bought=S.shopping.filter(g=>g.done);
+ const fp=S.shopFilter?pending.filter(g=>g.tagId==S.shopFilter):pending;
+ const fb=S.shopFilter?bought.filter(g=>g.tagId==S.shopFilter):bought;
+ let h=`<div class="sectitle">Shopping List</div><div class="secsub">${pending.length} to get · ${bought.length} bought</div>`;
+ h+=filterBar(S.shopFilter,'setShopFilter');
+ h+=`<button class="primary-add" onclick="openModal('addShop')">+ Add item</button>`;
+ if(bought.length)h+=`<button onclick="clearBought()" style="background:transparent;border:1px solid #ddd8d2;color:#6b7280;border-radius:8px;padding:7px 13px;font-size:12px;margin-bottom:12px;transition:all .15s" onmouseover="this.style.borderColor='#9a4a4a';this.style.color='#9a5a5a'" onmouseout="this.style.borderColor='#2a2a2e';this.style.color='#555'">Clear bought (${bought.length})</button>`;
+ if(!S.shopping.length)return h+`<div class="empty"><div class="eicon">—</div><div class="etxt">Empty list.</div></div>`;
+ fp.forEach(g=>{h+=renderShopRow(g,false);});
+ if(fb.length){h+=`<div class="done-lbl">Bought</div>`;fb.forEach(g=>{h+=renderShopRow(g,true);});}
+ return h;
 }
 function setShopFilter(id){S.shopFilter=id;render();}
 function renderShopRow(g,isDone){
-  const tg=getTag(g.tagId);
-  return`<div class="shoprow${isDone?' done-row':''}">
-    <button class="gcheck${isDone?' done':''}" onclick="toggleShop(${g.id})">${isDone?iGChk:''}</button>
-    <div class="shopwrap">
-      <div class="shoptext${isDone?' done':''}">${esc(g.text)}</div>
-      <div class="tmeta">
-        ${g.qty?`<span style="font-size:10px;color:#6b7280;background:#f5f3ef;border-radius:4px;padding:2px 6px">${esc(g.qty)}</span>`:''}
-        ${tg?`<span class="tag-pill" style="background:${tg.color}22;color:${tg.color}">${esc(tg.name)}</span>`:''}
-        ${g.notes?`<span style="font-size:10px;color:#9ca3af">has notes</span>`:''}
-      </div>
-    </div>
-    <button class="ibtn" onclick="openModal('editShop',{id:${g.id},title:'${g.text.replace(/'/g,"\\'")}',qty:'${(g.qty||'').replace(/'/g,"\\'")}',notes:'${(g.notes||'').replace(/'/g,"\\'")}',tagId:${g.tagId||'null'}})">${iEdit}</button>
-  </div>`;
+ const tg=getTag(g.tagId);
+ return`<div class="shoprow${isDone?' done-row':''}">
+ <button class="gcheck${isDone?' done':''}" onclick="toggleShop(${g.id})">${isDone?iGChk:''}</button>
+ <div class="shopwrap">
+ <div class="shoptext${isDone?' done':''}">${esc(g.text)}</div>
+ <div class="tmeta">
+ ${g.qty?`<span style="font-size:10px;color:#6b7280;background:#f5f3ef;border-radius:4px;padding:2px 6px">${esc(g.qty)}</span>`:''}
+ ${tg?`<span class="tag-pill" style="background:${tg.color}22;color:${tg.color}">${esc(tg.name)}</span>`:''}
+ ${g.notes?`<span style="font-size:10px;color:#9ca3af">has notes</span>`:''}
+ </div>
+ </div>
+ <button class="ibtn" onclick="openModal('editShop',{id:${g.id},title:'${g.text.replace(/'/g,"\\'")}',qty:'${(g.qty||'').replace(/'/g,"\\'")}',notes:'${(g.notes||'').replace(/'/g,"\\'")}',tagId:${g.tagId||'null'}})">${iEdit}</button>
+ </div>`;
 }
 
-// ── TAG MANAGER ──
+// TAG MANAGER 
 function renderTagMgr(){
-  let h=`<div class="sectitle">Tag Manager</div><div class="secsub">Create and manage your color tags.</div>`;
-  h+=`<div style="background:#ffffff;border:1px solid #e8e3dc;border-radius:13px;padding:18px;margin-bottom:20px">
-    <div style="font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:.08em;font-weight:500;margin-bottom:12px">Create a new tag</div>
-    <div style="margin-bottom:10px"><div style="font-size:11px;color:#9ca3af;margin-bottom:7px">Pick a color</div>
-      <div style="display:flex;flex-wrap:wrap;gap:8px">`;
-  TAG_COLORS.forEach(c=>{h+=`<div class="tcolor-swatch${S.newTagColor===c?' sel':''}" style="background:${c}" onclick="S.newTagColor='${c}';render()"></div>`;});
-  h+=`</div></div>
-    <div style="display:flex;gap:8px">
-      <input class="minput" placeholder="Tag name…" id="tagNameInp" value="${esc(S.newTagName)}" oninput="S.newTagName=this.value" onkeydown="if(event.key==='Enter')addTag()"/>
-      <button class="save-btn" style="flex:0;padding:11px 18px;font-size:13px" onclick="addTag()">Add tag</button>
-    </div>
-    ${S.newTagName&&!S.newTagName.trim()?'<div style="font-size:12px;color:#bc0a0a;margin-top:6px">Enter a tag name.</div>':''}
-  </div>`;
-  if(!S.tags.length)return h+`<div class="empty"><div class="eicon">🏷️</div><div class="etxt">No tags yet. Create your first one above.</div></div>`;
-  h+=`<div style="font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:.08em;font-weight:500;margin-bottom:10px">Your tags (${S.tags.length})</div>`;
-  S.tags.forEach(t=>{h+=`<div class="tag-card">
-    <div style="width:28px;height:28px;border-radius:50%;background:${t.color};flex-shrink:0"></div>
-    <div style="flex:1"><div style="font-size:14px;color:#374151;font-weight:500">${esc(t.name)}</div></div>
-    <button class="ibtn" onclick="if(confirm('Delete tag &quot;${esc(t.name)}&quot;?'))deleteTag(${t.id})">${iDel}</button>
-  </div>`;});
-  return h;
+ let h=`<div class="sectitle">Tag Manager</div><div class="secsub">Create and manage your color tags.</div>`;
+ h+=`<div style="background:#ffffff;border:1px solid #e8e3dc;border-radius:13px;padding:18px;margin-bottom:20px">
+ <div style="font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:.08em;font-weight:500;margin-bottom:12px">Create a new tag</div>
+ <div style="margin-bottom:10px"><div style="font-size:11px;color:#9ca3af;margin-bottom:7px">Pick a color</div>
+ <div style="display:flex;flex-wrap:wrap;gap:8px">`;
+ TAG_COLORS.forEach(c=>{h+=`<div class="tcolor-swatch${S.newTagColor===c?' sel':''}" style="background:${c}" onclick="S.newTagColor='${c}';render()"></div>`;});
+ h+=`</div></div>
+ <div style="display:flex;gap:8px">
+ <input class="minput" placeholder="Tag name…" id="tagNameInp" value="${esc(S.newTagName)}" oninput="S.newTagName=this.value" onkeydown="if(event.key==='Enter')addTag()"/>
+ <button class="save-btn" style="flex:0;padding:11px 18px;font-size:13px" onclick="addTag()">Add tag</button>
+ </div>
+ ${S.newTagName&&!S.newTagName.trim()?'<div style="font-size:12px;color:#bc0a0a;margin-top:6px">Enter a tag name.</div>':''}
+ </div>`;
+ if(!S.tags.length)return h+`<div class="empty"><div class="eicon">—</div><div class="etxt">No tags yet. Create your first one above.</div></div>`;
+ h+=`<div style="font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:.08em;font-weight:500;margin-bottom:10px">Your tags (${S.tags.length})</div>`;
+ S.tags.forEach(t=>{h+=`<div class="tag-card">
+ <div style="width:28px;height:28px;border-radius:50%;background:${t.color};flex-shrink:0"></div>
+ <div style="flex:1"><div style="font-size:14px;color:#374151;font-weight:500">${esc(t.name)}</div></div>
+ <button class="ibtn" onclick="if(confirm('Delete tag &quot;${esc(t.name)}&quot;?'))deleteTag(${t.id})">${iDel}</button>
+ </div>`;});
+ return h;
 }
 
-// ── AUTH ──
+// AUTH 
 function renderAuth(){
-  const isSignup=S.authMode==='signup';
-  return`<div class="center"><div class="acard">
-    <div class="alogo">✦ Planner</div>
-    <div class="atitle">${isSignup?'Create account':'Welcome back'}</div>
-    <div class="asub">${isSignup?'Set up your account to get started.':'Sign in to your planner.'}</div>
-    <div class="alabel">Email</div>
-    <input class="ainput" type="email" placeholder="you@example.com" value="${esc(S.email)}" oninput="S.email=this.value" onkeydown="if(event.key==='Enter')doAuth()" autofocus/>
-    <div class="alabel">Password</div>
-    <input class="ainput" type="password" placeholder="${isSignup?'Choose a password (6+ chars)':'Your password'}" value="${esc(S.password)}" oninput="S.password=this.value" onkeydown="if(event.key==='Enter')doAuth()"/>
-    <button class="abtn" onclick="doAuth()">${isSignup?'Create account →':'Sign in →'}</button>
-    ${S.authErr?`<div class="aerr">${esc(S.authErr)}</div>`:''}
-    <button class="atoggle" onclick="S.authMode=S.authMode==='signin'?'signup':'signin';S.authErr='';render()">${isSignup?'Already have an account? Sign in':'No account? Create one'}</button>
-  </div></div>`;
+ const isSignup=S.authMode==='signup';
+ return`<div class="center"><div class="acard">
+ <div class="alogo">&#10022; Planner</div>
+ <div class="atitle">${isSignup?'Create account':'Welcome back'}</div>
+ <div class="asub">${isSignup?'Set up your account to get started.':'Sign in to your planner.'}</div>
+ <div class="alabel">Email</div>
+ <input class="ainput" type="email" placeholder="you@example.com" value="${esc(S.email)}" oninput="S.email=this.value" onkeydown="if(event.key==='Enter')doAuth()" autofocus/>
+ <div class="alabel">Password</div>
+ <input class="ainput" type="password" placeholder="${isSignup?'Choose a password (6+ chars)':'Your password'}" value="${esc(S.password)}" oninput="S.password=this.value" onkeydown="if(event.key==='Enter')doAuth()"/>
+ <button class="abtn" onclick="doAuth()">${isSignup?'Create account →':'Sign in →'}</button>
+ ${S.authErr?`<div class="aerr">${esc(S.authErr)}</div>`:''}
+ <button class="atoggle" onclick="S.authMode=S.authMode==='signin'?'signup':'signin';S.authErr='';render()">${isSignup?'Already have an account? Sign in':'No account? Create one'}</button>
+ </div></div>`;
 }
 
-// ── BOOT ──
+// BOOT 
 async function startApp(user){uid=user.id;S.screen='app';S.sync='syncing';render();await load(uid);render();}
 async function boot(){
-  const{data}=await sb.auth.getSession();
-  if(data?.session?.user){await startApp(data.session.user);return;}
-  S.screen='login';render();
+ const{data}=await sb.auth.getSession();
+ if(data?.session?.user){await startApp(data.session.user);return;}
+ S.screen='login';render();
 }
 sb.auth.onAuthStateChange(async(event,session)=>{if(event==='SIGNED_IN'&&session?.user&&S.screen!=='app')await startApp(session.user);if(event==='SIGNED_OUT')render();});
 boot();
