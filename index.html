@@ -268,7 +268,7 @@ const SUPA_URL="https://rtosuzhqsxdxwoktcapt.supabase.co";
 const SUPA_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0b3N1emhxc3hkeHdva3RjYXB0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMjA5MDAsImV4cCI6MjA5NTc5NjkwMH0.s1BNR6YvsprDNuWurTmcnabbj7RBY-xE6AtCkH48ApQ";
 const sb=window.supabase.createClient(SUPA_URL,SUPA_KEY);
 
-const TAG_COLORS=["#e05a5a","#e07a3a","#d4a843","#5a9a5a","#4a7ab5","#8a5ab5","#b54a8a","#5a9a9a","#7a7a7a","#9a7a4a","#6a9a7a","#c06060"];
+const TAG_COLORS=["#e05a5a","#e07a3a","#d4a843","#5a9a5a","#4a7ab5","#8a5ab5","#b54a8a","#5a9a9a","#7a7a7a","#9a7a4a","#6a9a7a","#c06060"]; // kept for reference
 const EV_TYPES=[{v:"event",l:"Event"},{v:"meeting",l:"Meeting"},{v:"birthday",l:"Birthday"},{v:"wedding",l:"Wedding"},{v:"party",l:"Party"},{v:"travel",l:"Travel"},{v:"reminder",l:"Reminder"},{v:"other",l:"Other"}];
 const BASE_SECS=[];
 const NAV=[{id:"review",label:"Daily Review",icon:"·"},{id:"tasks",label:"Tasks",icon:"·"},{id:"everyday",label:"Everyday",icon:"·"},{id:"dump",label:"Brain Dump",icon:"·"},{id:"shopping",label:"Shopping List",icon:"·"},{id:"events",label:"Events",icon:"·"},{id:"tagmgr",label:"Tag Manager",icon:"·"}];
@@ -369,7 +369,7 @@ function addTag(){
  commit();
 }
 function deleteTag(id){S.tags=S.tags.filter(t=>t.id!=id);commit();}
-function setNewTagColor(c){S.newTagColor=c;render();}
+// setNewTagColor replaced by native color picker
 
 // MODAL 
 function openModal(type,prefill={}){
