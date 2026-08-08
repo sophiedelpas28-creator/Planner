@@ -270,8 +270,32 @@ const sb=window.supabase.createClient(SUPA_URL,SUPA_KEY);
 
 const TAG_COLORS=["#e05a5a","#e07a3a","#d4a843","#5a9a5a","#4a7ab5","#8a5ab5","#b54a8a","#5a9a9a","#7a7a7a","#9a7a4a","#6a9a7a","#c06060"]; // kept for reference
 const EV_TYPES=[{v:"event",l:"Event"},{v:"meeting",l:"Meeting"},{v:"birthday",l:"Birthday"},{v:"wedding",l:"Wedding"},{v:"party",l:"Party"},{v:"travel",l:"Travel"},{v:"reminder",l:"Reminder"},{v:"other",l:"Other"}];
+const JOURNAL_SECTIONS=[
+  {title:"Body State",groups:[
+    {key:"energy",label:"Energy / Rest",opts:["Sleepy","Exhausted","Wired / can't rest","Groggy","Well-rested","Sluggish"]},
+    {key:"hunger",label:"Hunger / Hydration",opts:["Hungry","Thirsty","Overfull / bloated","Nauseous","Craving"]},
+    {key:"temperature",label:"Temperature / Environment",opts:["Too hot","Too cold","Overstimulated","Understimulated","Need fresh air","Stuffy / need airflow"]},
+    {key:"bodily",label:"Bodily / Physiological",opts:["Need bathroom","Headache","Sore / achy","Sick / unwell","Tense muscles","Need to stretch","Caffeine crash","Menstrual / cycle-related","Physically drained"]},
+    {key:"movement",label:"Movement",opts:["Restless — need to move","Stiff — been sitting too long","Need to lie down"]},
+  ]},
+  {title:"Emotions",groups:[
+    {key:"emo_low",label:"Low energy / Down",opts:["Calm","Relieved","Peaceful","Relaxed","Nostalgic","Sad","Flat","Numb","Lonely","Disappointed","Discouraged","Drained (emotionally)","Empty"]},
+    {key:"emo_high",label:"High energy / Activated",opts:["Excited","Hopeful","Grateful","Motivated","Curious","Proud","Content","Playful","Anxious","Irritable","Angry","Overwhelmed","Frustrated","Restless (emotional)","Panicky","Resentful"]},
+    {key:"emo_self",label:"Self-directed",opts:["Guilty","Ashamed","Insecure","Embarrassed","Self-critical"]},
+    {key:"emo_inter",label:"Interpersonal",opts:["Rejected","Jealous","Misunderstood","Loved","Supported","Distant / disconnected"]},
+  ]},
+  {title:"Need",groups:[
+    {key:"need_rest",label:"Rest / Recovery",opts:["Rest","Sleep","Do nothing","Quiet","Solitude / alone time"]},
+    {key:"need_conn",label:"Connection",opts:["To be heard","To be seen","Physical touch / affection","Company","Reassurance","To connect with someone specific"]},
+    {key:"need_reg",label:"Regulation",opts:["Comfort","Safety","Calm","Grounding","To cry it out","To vent"]},
+    {key:"need_agency",label:"Agency / Structure",opts:["Control","Clarity","Structure","To finish something","To say no","A boundary","To be honest with someone"]},
+    {key:"need_expr",label:"Expression / Release",opts:["Movement","Play","Creativity","Fresh air","Music","To be outside"]},
+    {key:"need_valid",label:"Validation",opts:["To be understood","To be right","Acknowledgment","Space to be imperfect"]},
+  ]},
+];
+
 const BASE_SECS=[];
-const NAV=[{id:"review",label:"Daily Review",icon:"·"},{id:"tasks",label:"Tasks",icon:"·"},{id:"everyday",label:"Everyday",icon:"·"},{id:"dump",label:"Brain Dump",icon:"·"},{id:"shopping",label:"Shopping List",icon:"·"},{id:"events",label:"Events",icon:"·"},{id:"tagmgr",label:"Tag Manager",icon:"·"}];
+const NAV=[{id:"review",label:"Daily Review",icon:"·"},{id:"tasks",label:"Tasks",icon:"·"},{id:"everyday",label:"Everyday",icon:"·"},{id:"dump",label:"Brain Dump",icon:"·"},{id:"shopping",label:"Shopping List",icon:"·"},{id:"events",label:"Events",icon:"·"},{id:"journal",label:"Journal",icon:"·"},{id:"tagmgr",label:"Tag Manager",icon:"·"}];
 
 let uid=null;
 let S={
@@ -288,7 +312,7 @@ let S={
  inlineTag:false,inlineTagName:'',inlineTagColor:TAG_COLORS[0],
  newHabit:'',
  calY:new Date().getFullYear(),calM:new Date().getMonth(),selDay:null,
- email:'',password:'',authErr:'',sync:'synced',
+ email:'',password:'',authErr:'',sync:'synced',journalView:'checkin',journalDraft:{selections:{},action:''},journalEntries:[],
 };
 
 // UTILS 
@@ -332,7 +356,7 @@ async function load(userId){
  const{data}=await sb.from('planner_data').select('*').eq('user_id',userId).single();
  if(data){
  const t=data.tasks||{};
- S.shopping=t._shopping||[];S.customSecs=t._customSecs||[];S.tags=t._tags||[];S.notes=t._notes||[];
+ S.shopping=t._shopping||[];S.customSecs=t._customSecs||[];S.tags=t._tags||[];S.notes=t._notes||[];S.journalEntries=t._journalEntries||[];
  const{_shopping,_customSecs,_tags,_notes,...actual}=t;
  S.tasks=actual;S.habits=data.habits||[];S.habitLog=data.habit_log||{};S.events=data.events||[];
  }
@@ -342,7 +366,7 @@ async function load(userId){
 async function save(){
  if(!uid)return;S.sync='syncing';render();
  try{
- const tasksToSave={...S.tasks,_shopping:S.shopping,_customSecs:S.customSecs,_tags:S.tags,_notes:S.notes};
+ const tasksToSave={...S.tasks,_shopping:S.shopping,_customSecs:S.customSecs,_tags:S.tags,_notes:S.notes,_journalEntries:S.journalEntries};
  await sb.from('planner_data').upsert({user_id:uid,tasks:tasksToSave,habits:S.habits,habit_log:S.habitLog,events:S.events,updated_at:new Date().toISOString()},{onConflict:'user_id'});
  S.sync='synced';
  }catch(e){S.sync='error';}
@@ -892,6 +916,177 @@ function renderShopRow(g,isDone){
  </div>
  <button class="ibtn" onclick="openModal('editShop',{id:${g.id},title:'${g.text.replace(/'/g,"\\'")}',qty:'${(g.qty||'').replace(/'/g,"\\'")}',notes:'${(g.notes||'').replace(/'/g,"\\'")}',tagId:${g.tagId||'null'}})">${iEdit}</button>
  </div>`;
+}
+
+
+// ── JOURNAL ──
+function toggleJournalOpt(key,opt){
+  const sel=S.journalDraft.selections;
+  if(!sel[key])sel[key]=[];
+  const idx=sel[key].indexOf(opt);
+  if(idx>-1)sel[key].splice(idx,1);
+  else sel[key].push(opt);
+  render();
+}
+function saveJournalEntry(){
+  const hasAny=Object.values(S.journalDraft.selections).some(v=>v.length>0)||S.journalDraft.action.trim();
+  if(!hasAny)return;
+  S.journalEntries.unshift({
+    id:Date.now(),
+    timestamp:new Date().toISOString(),
+    selections:JSON.parse(JSON.stringify(S.journalDraft.selections)),
+    action:S.journalDraft.action.trim(),
+  });
+  S.journalDraft={selections:{},action:''};
+  S.journalView='history';
+  commit();
+}
+function deleteJournalEntry(id){
+  S.journalEntries=S.journalEntries.filter(e=>e.id!==id);commit();
+}
+function renderJournal(){
+  let h=`<div class="sectitle" style="margin-bottom:4px">Journal</div>
+  <div class="secsub" style="margin-bottom:16px">Check in with yourself. Multi-select anything that applies.</div>
+  <div style="display:flex;gap:6px;margin-bottom:20px;border-bottom:1.5px solid var(--border);padding-bottom:0">
+    ${['checkin','history','insights'].map(v=>`<button onclick="S.journalView='${v}';render()" style="padding:10px 16px;font-size:13px;font-weight:600;background:none;border:none;border-bottom:2px solid ${S.journalView===v?'var(--primary)':'transparent'};color:${S.journalView===v?'var(--primary)':'var(--text2)'};cursor:pointer;transition:all .15s;margin-bottom:-1.5px">${v==='checkin'?'Check in':v==='history'?'Past entries':'Insights'}</button>`).join('')}
+  </div>`;
+  if(S.journalView==='checkin') h+=renderJournalForm();
+  else if(S.journalView==='history') h+=renderJournalHistory();
+  else h+=renderJournalInsights();
+  return h;
+}
+function renderJournalForm(){
+  let h=``;
+  JOURNAL_SECTIONS.forEach(sec=>{
+    h+=`<div style="margin-bottom:24px">
+      <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--text1);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border)">${esc(sec.title)}</div>`;
+    sec.groups.forEach(grp=>{
+      h+=`<div style="margin-bottom:14px">
+        <div style="font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">${esc(grp.label)}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">`;
+      const sel=S.journalDraft.selections[grp.key]||[];
+      grp.opts.forEach(opt=>{
+        const on=sel.includes(opt);
+        h+=`<button onclick="toggleJournalOpt('${grp.key}','${opt.replace(/'/g,"\'")}')" style="padding:6px 13px;border-radius:100px;border:1.5px solid ${on?'var(--primary)':'var(--border2)'};background:${on?'#fff2f2':'transparent'};color:${on?'var(--primary)':'var(--text2)'};font-size:13px;font-weight:${on?'600':'400'};cursor:pointer;transition:all .15s;font-family:'Mulish',sans-serif">${esc(opt)}</button>`;
+      });
+      h+=`</div></div>`;
+    });
+    h+=`</div>`;
+  });
+  // Action section
+  h+=`<div style="margin-bottom:24px">
+    <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--text1);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border)">Action</div>
+    <div style="font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">What do I do?</div>
+    <textarea style="width:100%;background:var(--bg2);border:1.5px solid var(--border2);border-radius:10px;padding:12px 14px;color:var(--text1);font-size:14px;line-height:1.7;outline:none;resize:none;min-height:100px;font-family:'Mulish',sans-serif;transition:border-color .15s" placeholder="Write freely — what will you do, what do you need, what helps…" oninput="S.journalDraft.action=this.value" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border2)'">${esc(S.journalDraft.action)}</textarea>
+  </div>
+  <div style="display:flex;gap:10px;margin-bottom:30px">
+    <button onclick="saveJournalEntry()" style="flex:1;background:var(--primary);color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Mulish',sans-serif;transition:all .15s">Save check-in</button>
+    <button onclick="S.journalDraft={selections:{},action:''};render()" style="background:var(--bg2);color:var(--text2);border:1.5px solid var(--border2);border-radius:10px;padding:14px 18px;font-size:14px;cursor:pointer;font-family:'Mulish',sans-serif;transition:all .15s">Clear</button>
+  </div>`;
+  return h;
+}
+function renderJournalHistory(){
+  if(!S.journalEntries.length) return`<div class="empty"><div class="eicon">—</div><div class="etxt">No entries yet. Do your first check-in.</div><button onclick="S.journalView='checkin';render()" style="margin-top:14px;background:var(--primary);color:#fff;border:none;border-radius:10px;padding:11px 22px;font-size:14px;font-weight:600;cursor:pointer">Check in now</button></div>`;
+  let h=`<button onclick="S.journalView='checkin';render()" style="background:var(--primary);color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:20px">+ New check-in</button>`;
+  S.journalEntries.forEach(entry=>{
+    const d=new Date(entry.timestamp);
+    const dateStr=d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    const timeStr=d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+    const allSelected=Object.entries(entry.selections).flatMap(([k,v])=>v);
+    const totalCount=allSelected.length;
+    h+=`<div style="background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:18px;margin-bottom:12px">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px">
+        <div>
+          <div style="font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--text1)">${dateStr}</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:2px">${timeStr} · ${totalCount} item${totalCount!==1?'s':''} selected</div>
+        </div>
+        <button onclick="deleteJournalEntry(${entry.id})" style="background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;padding:2px 6px;transition:color .15s" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text3)'">&times;</button>
+      </div>`;
+    JOURNAL_SECTIONS.forEach(sec=>{
+      const secItems=sec.groups.flatMap(g=>entry.selections[g.key]||[]);
+      if(!secItems.length)return;
+      h+=`<div style="margin-bottom:10px">
+        <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px">${esc(sec.title)}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px">
+          ${secItems.map(opt=>`<span style="padding:4px 11px;border-radius:100px;background:#fff2f2;color:var(--primary);font-size:12px;font-weight:600;border:1px solid #f5c6c6">${esc(opt)}</span>`).join('')}
+        </div>
+      </div>`;
+    });
+    if(entry.action){
+      h+=`<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
+        <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px">Action</div>
+        <div style="font-size:14px;color:var(--text1);line-height:1.6">${esc(entry.action)}</div>
+      </div>`;
+    }
+    h+=`</div>`;
+  });
+  return h;
+}
+function renderJournalInsights(){
+  if(S.journalEntries.length<1) return`<div class="empty"><div class="eicon">—</div><div class="etxt">Complete a few check-ins to see insights.</div></div>`;
+  // Count all selections
+  const freq={};
+  const sectionFreq={};
+  S.journalEntries.forEach(e=>{
+    Object.entries(e.selections).forEach(([key,vals])=>{
+      const secTitle=JOURNAL_SECTIONS.find(s=>s.groups.find(g=>g.key===key))?.title||'Other';
+      if(!sectionFreq[secTitle])sectionFreq[secTitle]={};
+      vals.forEach(v=>{
+        freq[v]=(freq[v]||0)+1;
+        sectionFreq[secTitle][v]=(sectionFreq[secTitle][v]||0)+1;
+      });
+    });
+  });
+  const sorted=Object.entries(freq).sort((a,b)=>b[1]-a[1]);
+  const total=S.journalEntries.length;
+  const maxCount=sorted[0]?.[1]||1;
+  let h=`<div style="background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:18px;margin-bottom:16px">
+    <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px">Overview</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div style="background:var(--bg2);border-radius:10px;padding:14px;text-align:center">
+        <div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:800;color:var(--primary)">${total}</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:2px">Check-ins</div>
+      </div>
+      <div style="background:var(--bg2);border-radius:10px;padding:14px;text-align:center">
+        <div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:800;color:var(--primary)">${sorted.length}</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:2px">Unique feelings</div>
+      </div>
+    </div>
+  </div>`;
+
+  if(sorted.length){
+    h+=`<div style="background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:18px;margin-bottom:16px">
+      <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px">Most frequent (top 10)</div>`;
+    sorted.slice(0,10).forEach(([opt,count])=>{
+      const pct=Math.round((count/maxCount)*100);
+      const entryPct=Math.round((count/total)*100);
+      h+=`<div style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
+          <span style="font-size:13px;color:var(--text1);font-weight:500">${esc(opt)}</span>
+          <span style="font-size:11px;color:var(--text2)">${count}x · ${entryPct}% of entries</span>
+        </div>
+        <div style="height:6px;background:var(--bg3);border-radius:3px;overflow:hidden">
+          <div style="height:100%;width:${pct}%;background:var(--primary);border-radius:3px;transition:width .4s ease"></div>
+        </div>
+      </div>`;
+    });
+    h+=`</div>`;
+  }
+
+  // Per-section breakdown
+  h+=`<div style="background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:18px;margin-bottom:16px">
+    <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px">By section</div>`;
+  Object.entries(sectionFreq).forEach(([sec,items])=>{
+    const topItems=Object.entries(items).sort((a,b)=>b[1]-a[1]).slice(0,3);
+    h+=`<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border)">
+      <div style="font-size:12px;font-weight:700;color:var(--text1);margin-bottom:6px">${esc(sec)}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px">
+        ${topItems.map(([opt,cnt])=>`<span style="padding:3px 10px;border-radius:100px;background:#fff2f2;color:var(--primary);font-size:12px;font-weight:600;border:1px solid #f5c6c6">${esc(opt)} <span style="opacity:.7">${cnt}x</span></span>`).join('')}
+      </div>
+    </div>`;
+  });
+  h+=`</div>`;
+  return h;
 }
 
 // TAG MANAGER 
