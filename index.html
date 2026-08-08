@@ -653,9 +653,10 @@ function renderFab(){
  h+=`<div class="fab-menu">`;
  h+=`<button class="fab-item" onclick="openModal('addTask')">Task</button>`;
  h+=`<button class="fab-item" onclick="openModal('addEvent')">Event</button>`;
- h+=`<button class="fab-item" onclick="openModal('addNote')">Note</button>`;
+ h+=`<button class="fab-item" onclick="openModal('addNote')">Brain Dump</button>`;
  h+=`<button class="fab-item" onclick="openModal('addHabit')">Habit</button>`;
  h+=`<button class="fab-item" onclick="openModal('addShop')">Shopping item</button>`;
+ h+=`<button class="fab-item" onclick="S.fabOpen=false;S.tab='journal';S.journalView='checkin';render()">Journal check-in</button>`;
  h+=`</div>`;
  }
  h+=`<button class="fab" onclick="S.fabOpen=!S.fabOpen;render()">${S.fabOpen?'×':'+'}</button>`;
