@@ -356,7 +356,7 @@ async function load(userId){
  const{data}=await sb.from('planner_data').select('*').eq('user_id',userId).single();
  if(data){
  const t=data.tasks||{};
- S.shopping=t._shopping||[];S.customSecs=t._customSecs||[];S.tags=t._tags||[];S.notes=t._notes||[];S.journalEntries=t._journalEntries||[];
+ S.shopping=t._shopping||[];S.customSecs=t._customSecs||[];S.tags=t._tags||[];S.notes=t._notes||[];S.journalEntries=t._journalEntries||[];S.journalEntries=t._journalEntries||[];
  const{_shopping,_customSecs,_tags,_notes,...actual}=t;
  S.tasks=actual;S.habits=data.habits||[];S.habitLog=data.habit_log||{};S.events=data.events||[];
  }
@@ -633,6 +633,7 @@ function render(){
  if(S.tab==='dump') h+=renderDump();
  if(S.tab==='shopping') h+=renderShopping();
  if(S.tab==='events') h+=renderEvents();
+ if(S.tab==='journal') h+=renderJournal();
  if(S.tab==='tagmgr') h+=renderTagMgr();
  h+=`</div></div></div>`;
  // FAB (not on tagmgr/review fab already there)
