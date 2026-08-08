@@ -738,7 +738,7 @@ function renderCalendar(){
 // TASKS 
 function renderTasks(){
  const secs=allSecs();
- let h=`<div class="secnav">`;
+ let h=`<div class="sectitle" style="margin-bottom:14px">Tasks</div><div class="secnav">`;
  secs.forEach(s=>{const p=S.tasks[s.id]?S.tasks[s.id].filter(t=>!t.done).length:0;h+=`<button class="sbtn${S.sec===s.id?' active':''}" onclick="S.sec='${s.id}';render()">${esc(s.label)}${p>0?`<span class="badge">${p}</span>`:''}</button>`;});
  if(S.addingSec){h+=`<input class="new-sec-input" id="newSecInp" placeholder="Name…" oninput="S.newSecLabel=this.value" onkeydown="if(event.key==='Enter')addCustomSec()" onblur="setTimeout(()=>{S.addingSec=false;render()},200)"/>`;}
  else{h+=`<button class="add-sec-btn" onclick="S.addingSec=true;render()">+</button>`;}
@@ -748,9 +748,9 @@ function renderTasks(){
  const secDef=allSecs().find(s=>s.id===S.sec);
  const label=secDef?.label||S.sec;
  const isCustom=S.customSecs.find(s=>s.id===S.sec);
- h+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
- <div class="sectitle">${esc(label)}</div>
- ${isCustom?`<button onclick="if(confirm('Delete this section?'))deleteCustomSec('${S.sec}')" style="background:none;border:none;color:#9ca3af;font-size:12px" onmouseover="this.style.color='#9a5a5a'" onmouseout="this.style.color='#3a3a40'">Delete</button>`:''}
+ h+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
+ ${S.sec?`<div style="font-size:14px;font-weight:600;color:#374151">${esc(label)}</div>`:''}
+ ${isCustom?`<button onclick="if(confirm('Delete this section?'))deleteCustomSec('${S.sec}')" style="background:none;border:none;color:#9ca3af;font-size:12px" onmouseover="this.style.color='#bc0a0a'" onmouseout="this.style.color='#9ca3af'">Delete section</button>`:''}
  </div>
  <div class="secsub">${!list.length?'Nothing here yet.':`${todo.length} remaining · ${done.length} done`}</div>`;
  h+=filterBar(S.filterTag,'setTaskFilter');
@@ -896,10 +896,15 @@ function renderTagMgr(){
  let h=`<div class="sectitle">Tag Manager</div><div class="secsub">Create and manage your color tags.</div>`;
  h+=`<div style="background:#ffffff;border:1px solid #e8e3dc;border-radius:13px;padding:18px;margin-bottom:20px">
  <div style="font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:.08em;font-weight:500;margin-bottom:12px">Create a new tag</div>
- <div style="margin-bottom:10px"><div style="font-size:11px;color:#9ca3af;margin-bottom:7px">Pick a color</div>
- <div style="display:flex;flex-wrap:wrap;gap:8px">`;
- TAG_COLORS.forEach(c=>{h+=`<div class="tcolor-swatch${S.newTagColor===c?' sel':''}" style="background:${c}" onclick="S.newTagColor='${c}';render()"></div>`;});
- h+=`</div></div>
+ <div style="margin-bottom:12px">
+    <div style="font-size:11px;color:#6b7280;letter-spacing:.07em;text-transform:uppercase;font-weight:500;margin-bottom:8px">Color</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <input type="color" id="mgrColorPicker" value="${S.newTagColor}" oninput="S.newTagColor=this.value;const h=document.getElementById('mgrHexInp');if(h)h.value=this.value.replace('#','')" style="width:44px;height:44px;border:none;border-radius:8px;cursor:pointer;padding:2px;background:transparent;flex-shrink:0"/>
+      <div style="display:flex;align-items:center;border:1.5px solid #ddd8d2;border-radius:8px;overflow:hidden;flex:1">
+        <span style="padding:0 10px;font-size:13px;color:#9ca3af;border-right:1px solid #ddd8d2;background:#f5f3ef;height:38px;display:flex;align-items:center">#</span>
+        <input id="mgrHexInp" type="text" maxlength="6" value="${S.newTagColor.replace('#','')}" placeholder="bc0a0a" oninput="const hex='#'+this.value.trim();if(/^#[0-9a-fA-F]{6}$/.test(hex)){S.newTagColor=hex;const cp=document.getElementById('mgrColorPicker');if(cp)cp.value=hex;}" style="border:none;outline:none;background:transparent;padding:0 10px;font-size:13px;color:#374151;font-family:monospace;width:100%;height:38px"/>
+      </div>
+    </div></div>
  <div style="display:flex;gap:8px">
  <input class="minput" placeholder="Tag name…" id="tagNameInp" value="${esc(S.newTagName)}" oninput="S.newTagName=this.value" onkeydown="if(event.key==='Enter')addTag()"/>
  <button class="save-btn" style="flex:0;padding:11px 18px;font-size:13px" onclick="addTag()">Add tag</button>
