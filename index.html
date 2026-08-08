@@ -481,17 +481,22 @@ function renderModal(){
  const d=S.modalData;
  const tagOptions=S.tags.map(t=>`<option value="${t.id}"${d.tagId==t.id?' selected':''}>${esc(t.name)}</option>`).join('');
  const inlineTagForm=S.modalAddingTag?`
- <div style="background:#f5f3ef;border:1px solid #ddd8d2;border-radius:9px;padding:12px;margin-top:8px">
- <div style="font-size:11px;color:#6b7280;margin-bottom:8px;font-weight:500;text-transform:uppercase;letter-spacing:.07em">New tag</div>
- <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">
- ${TAG_COLORS.map(c=>`<div style="width:22px;height:22px;border-radius:50%;background:${c};cursor:pointer;border:2px solid ${S.modalNewTagColor===c?'#fff':'transparent'};flex-shrink:0;transition:transform .1s" onclick="S.modalNewTagColor='${c}';render()"></div>`).join('')}
- </div>
- <div style="display:flex;gap:7px">
- <input class="minput" placeholder="Tag name…" value="${esc(S.modalNewTagName)}" oninput="S.modalNewTagName=this.value" onkeydown="if(event.key==='Enter')addInlineTag()" style="font-size:13px;padding:8px 11px"/>
- <button onclick="addInlineTag()" style="background:#bc0a0a;color:#ffffff;border:none;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;flex-shrink:0">Add</button>
- <button onclick="S.modalAddingTag=false;render()" style="background:#f0edea;border:1px solid #ddd8d2;color:#6b7280;border-radius:8px;padding:8px 12px;font-size:13px;flex-shrink:0"></button>
- </div>
- </div>`:''
+    <div style="background:#f5f3ef;border:1px solid #ddd8d2;border-radius:9px;padding:14px;margin-top:8px">
+      <div style="font-size:11px;color:#6b7280;font-weight:600;text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">New tag</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <input type="color" id="inlineColorPicker" value="${S.modalNewTagColor}" oninput="S.modalNewTagColor=this.value;const h=document.getElementById('inlineHexInp');if(h)h.value=this.value.replace('#','')" style="width:42px;height:42px;border:none;border-radius:8px;cursor:pointer;padding:2px;background:transparent;flex-shrink:0"/>
+        <div style="display:flex;align-items:center;border:1.5px solid #ddd8d2;border-radius:8px;overflow:hidden;flex:1">
+          <span style="padding:0 10px;font-size:13px;color:#9ca3af;border-right:1px solid #ddd8d2;background:#ffffff;height:38px;display:flex;align-items:center">#</span>
+          <input id="inlineHexInp" type="text" maxlength="6" value="${S.modalNewTagColor.replace('#','')}" placeholder="bc0a0a" oninput="const hex='#'+this.value.trim();if(/^#[0-9a-fA-F]{6}$/.test(hex)){S.modalNewTagColor=hex;const cp=document.getElementById('inlineColorPicker');if(cp)cp.value=hex;}" style="border:none;outline:none;background:transparent;padding:0 10px;font-size:13px;color:#374151;font-family:monospace;width:100%;height:38px"/>
+        </div>
+      </div>
+      <div style="display:flex;gap:7px">
+        <input class="minput" placeholder="Tag name…" value="${esc(S.modalNewTagName)}" oninput="S.modalNewTagName=this.value" onkeydown="if(event.key==='Enter')addInlineTag()" style="font-size:13px;padding:9px 12px"/>
+        <button onclick="addInlineTag()" style="background:#bc0a0a;color:#fff;border:none;border-radius:8px;padding:9px 14px;font-size:13px;font-weight:600;flex-shrink:0">Add</button>
+        <button onclick="S.modalAddingTag=false;render()" style="background:#f5f3ef;border:1px solid #ddd8d2;color:#6b7280;border-radius:8px;padding:9px 12px;font-size:13px;flex-shrink:0">&times;</button>
+      </div>
+    </div>`:''
+
  const tagSelect=`<div style="display:flex;gap:7px;align-items:center">
  <select class="mselect" style="flex:1" onchange="S.modalData.tagId=this.value"><option value="">No tag</option>${tagOptions}</select>
  <button onclick="S.modalAddingTag=!S.modalAddingTag;render()" title="Create new tag" style="width:34px;height:34px;flex-shrink:0;border-radius:8px;border:1px dashed #c8c2bb;background:transparent;color:#666;font-size:18px;line-height:1;display:flex;align-items:center;justify-content:center;transition:all .15s" onmouseover="this.style.borderColor='#888';this.style.color='#ccc'" onmouseout="this.style.borderColor='#3a3a40';this.style.color='#666'">+</button>
@@ -740,8 +745,6 @@ function renderTasks(){
  const secs=allSecs();
  let h=`<div class="sectitle" style="margin-bottom:14px">Tasks</div><div class="secnav">`;
  secs.forEach(s=>{const p=S.tasks[s.id]?S.tasks[s.id].filter(t=>!t.done).length:0;h+=`<button class="sbtn${S.sec===s.id?' active':''}" onclick="S.sec='${s.id}';render()">${esc(s.label)}${p>0?`<span class="badge">${p}</span>`:''}</button>`;});
- if(S.addingSec){h+=`<input class="new-sec-input" id="newSecInp" placeholder="Name…" oninput="S.newSecLabel=this.value" onkeydown="if(event.key==='Enter')addCustomSec()" onblur="setTimeout(()=>{S.addingSec=false;render()},200)"/>`;}
- else{h+=`<button class="add-sec-btn" onclick="S.addingSec=true;render()">+</button>`;}
  h+=`</div>`;
  const list=S.tasks[S.sec]||[];
  const todo=list.filter(t=>!t.done),done=list.filter(t=>t.done);
