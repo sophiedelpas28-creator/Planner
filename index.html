@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- planner v3.1 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
@@ -261,9 +262,11 @@ input,button,textarea,select{font-family:inherit}button{cursor:pointer}
 </style>
 </head>
 <body>
-<div id="app"></div>
+<div id="app"><div style="min-height:100vh;background:#fffdfa;display:flex;align-items:center;justify-content:center;font-family:Mulish,sans-serif;color:#374151;font-size:15px">Loading...</div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
+window.onerror=function(msg,src,line,col,err){document.getElementById("app").innerHTML='<div style="padding:40px;font-family:Mulish,sans-serif;color:#bc0a0a;font-size:14px;max-width:600px;margin:0 auto"><b>Error on line '+line+':</b><br>'+msg+'<br><br><small>'+src+'</small></div>';return true;};
+
 const SUPA_URL="https://rtosuzhqsxdxwoktcapt.supabase.co";
 const SUPA_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0b3N1emhxc3hkeHdva3RjYXB0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMjA5MDAsImV4cCI6MjA5NTc5NjkwMH0.s1BNR6YvsprDNuWurTmcnabbj7RBY-xE6AtCkH48ApQ";
 const sb=window.supabase.createClient(SUPA_URL,SUPA_KEY);
@@ -616,7 +619,7 @@ function render(){
  let h=`
  <div class="backdrop${S.sidebarOpen?' open':''}" onclick="S.sidebarOpen=false;render()"></div>
  <div class="sidebar${S.sidebarOpen?' open':''}">
- <div class="sidebar-head"><span class="sidebar-logo"><span></span> Planner</span><button class="sidebar-close" onclick="S.sidebarOpen=false;render()">&times;×</button></div>
+ <div class="sidebar-head"><span class="sidebar-logo"><span></span> Planner</span><button class="sidebar-close" onclick="S.sidebarOpen=false;render()">&times;</button></div>
  <nav class="sidebar-nav">`;
  NAV.forEach(n=>{h+=`<button class="snav-item${S.tab===n.id?' active':''}" onclick="S.tab='${n.id}';S.sidebarOpen=false;render()"><span class="snav-icon">${n.icon}</span><span>${n.label}</span></button>`;});
  h+=`</nav></div>
@@ -651,13 +654,12 @@ function renderFab(){
  let h=``;
  if(S.fabOpen){
  h+=`<div class="fab-menu">`;
- h+=`<button class="fab-item" onclick="openModal('addTask')">Task</button>`;
- h+=`<button class="fab-item" onclick="openModal('addEvent')">Event</button>`;
+ h+=`<button class="fab-item" onclick="openModal('addTask')">Tasks</button>`;
+ h+=`<button class="fab-item" onclick="openModal('addHabit')">Everyday</button>`;
  h+=`<button class="fab-item" onclick="openModal('addNote')">Brain Dump</button>`;
- h+=`<button class="fab-item" onclick="openModal('addHabit')">Habit</button>`;
- h+=`<button class="fab-item" onclick="openModal('addShop')">Shopping item</button>`;
- h+=`<button class="fab-item" onclick="S.fabOpen=false;S.tab='journal';S.journalView='checkin';render()">Journal check-in</button>`;
- h+=`</div>`;
+ h+=`<button class="fab-item" onclick="openModal('addShop')">Shopping List</button>`;
+ h+=`<button class="fab-item" onclick="openModal('addEvent')">Events</button>`;
+ h+=`<button class="fab-item" onclick="S.fabOpen=false;S.tab='journal';S.journalView='checkin';render()">Journal</button>`;h+=`</div>`;
  }
  h+=`<button class="fab" onclick="S.fabOpen=!S.fabOpen;render()">${S.fabOpen?'×':'+'}</button>`;
  return h;
